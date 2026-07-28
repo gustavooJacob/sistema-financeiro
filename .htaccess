@@ -1,0 +1,12 @@
+# Redireciona toda requisição que não corresponda a um arquivo ou pasta
+# real (assets/css, assets/js, assets/vendor) para o ponto de entrada
+# único da aplicação (FSD, Seção 5.2/5.3). A regra é relativa à pasta
+# onde este .htaccess está, então funciona em qualquer subpasta
+# (htdocs/sistema_financeiro no XAMPP, ou subpasta equivalente na Hostnet),
+# sem depender de nomes fixos.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

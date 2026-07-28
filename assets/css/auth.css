@@ -1,0 +1,134 @@
+/* Estilos das telas de autenticação (Fase 3).
+   Paleta e espaçamentos seguem docs/DESIGN.md; aplicação completa do
+   design system a todas as telas ocorre na Fase 9. */
+
+:root {
+    --cor-fundo: #F1F2F6;
+    --cor-cartao: #FFFFFF;
+    --cor-borda: #E7E8EF;
+    --cor-texto-primario: #1F2233;
+    --cor-texto-secundario: #6B6F80;
+    --cor-texto-terciario: #A0A3B1;
+    --cor-marca: #5B5FEF;
+    --cor-marca-hover: #4A4EDB;
+    --cor-erro: #EB5757;
+    --cor-erro-fundo: #FDEAEA;
+    --cor-sucesso: #2ECC71;
+    --cor-sucesso-fundo: #E7F9EE;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--cor-fundo);
+    color: var(--cor-texto-primario);
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.cartao-autenticacao {
+    background: var(--cor-cartao);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(20, 22, 40, 0.04), 0 4px 12px rgba(20, 22, 40, 0.04);
+    padding: 32px;
+    width: 100%;
+    max-width: 380px;
+}
+
+.cartao-autenticacao h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 24px;
+}
+
+.campo {
+    margin-bottom: 16px;
+}
+
+.campo label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 6px;
+}
+
+.campo input {
+    width: 100%;
+    height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--cor-texto-primario);
+}
+
+.campo input:focus {
+    outline: none;
+    border-color: var(--cor-marca);
+    box-shadow: 0 0 0 3px rgba(91, 95, 239, 0.15);
+}
+
+.campo-erro {
+    color: var(--cor-erro);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.botao-primario {
+    width: 100%;
+    height: 36px;
+    background: var(--cor-marca);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.botao-primario:hover {
+    background: var(--cor-marca-hover);
+}
+
+.mensagem {
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.mensagem-erro {
+    background: var(--cor-erro-fundo);
+    color: var(--cor-erro);
+}
+
+.mensagem-sucesso {
+    background: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso);
+}
+
+.rodape-link {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--cor-texto-secundario);
+    text-align: center;
+}
+
+.rodape-link a {
+    color: var(--cor-marca);
+    text-decoration: none;
+}
+
+.rodape-link a:hover {
+    text-decoration: underline;
+}

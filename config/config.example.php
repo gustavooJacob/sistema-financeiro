@@ -32,9 +32,15 @@ return [
         'porta' => 1025,
         'usuario' => '',
         'senha' => '',
+        'tls' => false,
         'remetente_email' => 'nao-responda@fincontrole.local',
         'remetente_nome' => 'FinControle',
     ],
+
+    // URL base da aplicação, usada para montar o link de redefinição de
+    // senha enviado por e-mail (ex.: link "http://localhost/fincontrole").
+    // Sem barra final.
+    'url_base' => 'http://localhost/sistema_financeiro',
 
     // Flags de ativação de logs.
     'logs' => [
