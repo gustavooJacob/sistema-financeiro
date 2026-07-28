@@ -27,6 +27,17 @@ Terreno preparado: estrutura inicial de pastas, arquivo de entrada, configuraç�
 
 Iniciar a **Fase 2 — Banco de dados e persistência**: criar o banco MySQL local, a tabela de controle `migrations`, o script de execução via CLI e as migrations de todas as tabelas descritas em `docs/FSD.md` (Seção 11), incluindo a inserção das categorias e formas de pagamento padrão.
 
+## Controle de versão (Git/GitHub)
+
+- Repositório Git local inicializado (branch `main`).
+- `.gitignore` criado: protege `config/config.php` real, logs de contingência (`logs/erros/*.log`) e arquivos de SO/editor. `assets/vendor/**` propositalmente **não** é ignorado (dependências hospedadas localmente, sem CDN e sem gerenciador de pacotes — precisam ser versionadas para existir em produção).
+- `.gitattributes` criado para padronizar final de linha (LF) em arquivos de texto e marcar binários (imagens, fontes) corretamente.
+- Conferido que nenhum segredo foi versionado (apenas `config/config.example.php`, sem credenciais reais).
+- Commit inicial criado: "Estrutura inicial do projeto".
+- Repositório remoto criado no GitHub como **público**, conectado via SSH: `git@github.com:gustavooJacob/sistema-financeiro.git`.
+- Chave SSH gerada nesta máquina e cadastrada na conta do GitHub para autenticação.
+- Push do commit inicial realizado com sucesso (`main` → `origin/main`).
+
 ## Observações
 
 - Nenhum arquivo de `docs/INSUMOS.md` precisou ser copiado nesta etapa (inventário indicou que não há logos, ícones ou imagens de referência disponíveis além dos próprios documentos).
