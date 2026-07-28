@@ -38,6 +38,7 @@ require __DIR__ . '/app/services/Historico.php';
 require __DIR__ . '/app/controllers/ClassificacaoController.php';
 require __DIR__ . '/app/models/Lancamento.php';
 require __DIR__ . '/app/controllers/LancamentoController.php';
+require __DIR__ . '/app/controllers/HistoricoController.php';
 
 // Caminho base da aplicação (ex.: "/sistema_financeiro" no XAMPP, ou a
 // subpasta equivalente na hospedagem final), detectado a partir do próprio
@@ -97,6 +98,7 @@ $formaPagamentoController = new ClassificacaoController(
     'formas de pagamento'
 );
 $lancamentoController = new LancamentoController($pdo);
+$historicoController = new HistoricoController($pdo);
 
 $rotas = [
     'GET /' => static fn () => Sessao::estaAutenticado()
@@ -128,6 +130,7 @@ $rotas = [
     'POST /lancamentos/editar' => [$lancamentoController, 'processarEditar'],
     'POST /lancamentos/concluir' => [$lancamentoController, 'processarConcluir'],
     'POST /lancamentos/excluir' => [$lancamentoController, 'processarExcluir'],
+    'GET /historico' => [$historicoController, 'listar'],
 ];
 
 $chave = $metodo . ' ' . $rota;

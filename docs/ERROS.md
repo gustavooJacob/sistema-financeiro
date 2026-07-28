@@ -34,6 +34,13 @@ Ao registrar um novo erro, use o modelo abaixo:
 - Solução aplicada: todas as condições em `Lancamento::listar()` (`app/models/Lancamento.php`) passaram a qualificar explicitamente o alias da tabela (`l.usuario_id`, `l.data_prevista`, `l.categoria_id`, `l.forma_pagamento_id`, `l.excluido_em`).
 - Como evitar no futuro: sempre qualificar as colunas com o alias da tabela em qualquer consulta que envolva `JOIN`, mesmo quando o nome da coluna parecer óbvio no contexto — várias tabelas deste projeto compartilham nomes de coluna (`usuario_id`, `nome`, `excluido_em`).
 
+## 28/07/2026 - "Invalid parameter number" ao filtrar o histórico por categoria/forma de pagamento
+
+- Sintoma: `GET /historico?categoria_id=17` (ou com `forma_pagamento_id`) retornava HTTP 500; `logs_erros` registrava `PDOException: SQLSTATE[HY093]: Invalid parameter number`.
+- Causa: `Historico::listar()` (`app/services/Historico.php`) usava o mesmo placeholder nomeado (`:categoria_id` / `:forma_pagamento_id`) duas vezes na mesma consulta SQL (uma vez para comparar com `he.entidade_id`, outra com `l.categoria_id`/`l.forma_pagamento_id`). Como `Conexao` desativa `PDO::ATTR_EMULATE_PREPARES`, o driver MySQL nativo não aceita reutilizar o mesmo placeholder nomeado mais de uma vez na mesma query.
+- Solução aplicada: cada ocorrência passou a usar um placeholder próprio (`:categoria_id_entidade` / `:categoria_id_lancamento`, `:forma_pagamento_id_entidade` / `:forma_pagamento_id_lancamento`), ambos recebendo o mesmo valor no array de parâmetros.
+- Como evitar no futuro: com `PDO::ATTR_EMULATE_PREPARES = false` (usado neste projeto por `app/models/Conexao.php`), nunca repetir o mesmo nome de placeholder mais de uma vez numa consulta — usar um nome distinto por ocorrência, mesmo quando o valor é idêntico.
+
 ## 28/07/2026 - Redirects e links quebravam ao acessar o projeto pela subpasta do XAMPP
 
 - Sintoma: ao acessar `http://localhost:8080/sistema_financeiro/`, o usuário era redirecionado para `http://localhost:8080/login` (sem o prefixo `sistema_financeiro`), resultando em "Not Found" do próprio Apache, fora da aplicação.

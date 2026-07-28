@@ -80,6 +80,20 @@ class ItemClassificacao
     }
 
     /**
+     * Busca por id ignorando soft delete — usada apenas para exibir o nome
+     * de itens já excluídos na tela de Histórico (FSD, Seção 17: o histórico
+     * permanece acessível mesmo após a exclusão do item original).
+     */
+    public function buscarPorIdIncluindoExcluidos(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->tabela} WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        $item = $stmt->fetch();
+
+        return $item ?: null;
+    }
+
+    /**
      * Soft delete de item próprio. Retorna false se o item não existir, já
      * estiver excluído, for padrão do sistema ou pertencer a outro usuário —
      * a posse é sempre validada aqui, independentemente da interface.

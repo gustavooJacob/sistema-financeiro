@@ -1,14 +1,14 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 7 concluída).
+**Última atualização:** 28/07/2026 (Fase 8 concluída).
 
 ## Estado atual
 
-Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros e agora o Painel Financeiro (Dashboard) estão implementados e testados ponta a ponta. Ao logar, o usuário já vê o resumo do mês corrente (saldo realizado/previsto, totais de receitas/despesas, gráfico de gastos por categoria e listas de lançamentos recentes/pendentes). Falta apenas o Histórico de Alterações (Fase 8), a consolidação final da identidade visual (Fase 9) e a revisão transversal de entrega.
+Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard) e agora o Histórico de Alterações estão implementados e testados ponta a ponta. O usuário pode consultar todo o histórico de criação/edição/exclusão de lançamentos e de exclusão de categorias/formas de pagamento, incluindo itens já excluídos, com filtros por período/categoria/forma de pagamento. Falta apenas a consolidação final da identidade visual (Fase 9) e a revisão transversal de entrega.
 
 ## Fase atual
 
-**Fase 7 — Painel financeiro (Dashboard): ✅ Concluída.**
+**Fase 8 — Histórico de alterações: ✅ Concluída.**
 
 ## Checklist por fase (ver detalhamento completo em `docs/PLANO.md`)
 
@@ -19,13 +19,38 @@ Módulo de autenticação e sessão, conta do usuário, categorias/formas de pag
 - [x] Fase 5 — Categorias e Formas de Pagamento
 - [x] Fase 6 — Lançamentos financeiros (CRUD)
 - [x] Fase 7 — Painel financeiro (Dashboard)
-- [ ] Fase 8 — Histórico de alterações
+- [x] Fase 8 — Histórico de alterações
 - [ ] Fase 9 — Identidade visual (DESIGN.md) em todas as telas
 - [ ] Fase Final — Itens transversais e revisão de entrega
 
 ## Próximo passo recomendado
 
-Iniciar a **Fase 8 — Histórico de alterações**: tela somente leitura com filtros por período, categoria e forma de pagamento, paginação de 20 registros/página, exibindo alterações mesmo de itens já excluídos (os registros em `historico_alteracoes` já são gerados desde as Fases 5 e 6).
+Iniciar a **Fase 9 — Identidade visual (DESIGN.md) em todas as telas**: baixar e hospedar localmente Bootstrap, fonte Inter e ícones Lucide (Chart.js já foi baixado na Fase 7) em `assets/vendor/`, criar `assets/css/` definitivo aplicando a paleta/tipografia/espaçamentos do `docs/DESIGN.md` sobre o Bootstrap local, e revisar todas as telas construídas até aqui (que hoje usam apenas o estilo básico de `assets/css/auth.css`) quanto à aderência ao design system.
+
+## Fase 8 — Histórico de alterações (detalhes)
+
+**O que foi implementado:**
+
+- **`app/services/Historico.php`**: método novo `listar()` (mantendo no mesmo arquivo/classe que já grava os registros — módulo único responsável pela tabela `historico_alteracoes`, mesmo padrão de `ItemClassificacao` para categorias/formas de pagamento). Filtra por `usuario_id` (isolamento obrigatório), período (`data_alteracao` entre `data_inicio 00:00:00` e `data_fim 23:59:59`), categoria e forma de pagamento; paginação de 20 registros/página, ordenado por `data_alteracao` decrescente. Usa `LEFT JOIN` com `lancamentos` (mesmo já soft-deletados, pois a linha continua existindo na tabela) para permitir filtrar por categoria/forma de pagamento também quando a entidade do histórico é o próprio lançamento.
+- **`app/models/ItemClassificacao.php`**: método novo `buscarPorIdIncluindoExcluidos()` — busca por id ignorando soft delete, usado apenas para resolver o nome de categorias/formas de pagamento já excluídas na exibição do histórico (FSD, Seção 17: histórico deve continuar acessível mesmo após a exclusão do item original).
+- **`app/controllers/HistoricoController.php`**: rota protegida `/historico`, lê filtros e página da query string, chama `Historico::listar()`, calcula total de páginas e traduz os códigos internos (`entidade_tipo`, `acao`, `campo_alterado`) para rótulos legíveis em português. Quando o campo alterado é `categoria_id` ou `forma_pagamento_id`, resolve o nome correspondente (mesmo se o item já foi excluído) via `ItemClassificacao::buscarPorIdIncluindoExcluidos()`, com cache em memória por requisição para não repetir consultas.
+- **View `app/views/historico/index.php`**: tela somente leitura (nenhuma ação de escrita), formulário de filtros por período/categoria/forma de pagamento (reaproveitando os mesmos componentes visuais da tela de Lançamentos), tabela com data/hora, entidade, ação (com badge colorido), campo alterado, valor anterior e valor novo, paginação e estado vazio quando não há alterações para os filtros aplicados.
+- Rota `GET /historico` adicionada em `index.php`; links de navegação para "Histórico" adicionados ao painel, à listagem de lançamentos e ao template compartilhado de categorias/formas de pagamento.
+
+**Decisão de implementação (ambiguidade do FSD):** a tabela `historico_alteracoes` (Seção 11) não guarda a categoria/forma de pagamento vigente em cada momento passado de um lançamento — apenas o `entidade_id` do lançamento e, quando o campo alterado for `categoria_id`/`forma_pagamento_id`, o id anterior/novo como texto solto. Por isso, o filtro por categoria/forma de pagamento na tela de Histórico considera: (a) o próprio registro de histórico da categoria/forma (ex.: sua exclusão) e (b) os registros de histórico de lançamentos cuja categoria/forma **atual** (estado hoje salvo em `lancamentos`, mesmo soft-deletado) corresponda ao filtro. Um lançamento que teve sua categoria trocada de A para B não aparece, sob o filtro "A", no registro de criação/exclusão (que reflete o estado atual, B) — apenas o próprio registro de edição do campo `categoria_id` mostra ambos os nomes (anterior e novo) na coluna de valores. Essa é a leitura mais coerente com a estrutura de dados definida no FSD, já que não há uma segunda tabela de "estado histórico" do lançamento.
+
+**Testes executados (via PowerShell `Invoke-WebRequest`, com Apache/MySQL do XAMPP em execução, `http://localhost:8080/sistema_financeiro`):**
+- Usuário de teste criado, categoria própria criada, lançamento criado, editado (valor e categoria), marcado como concluído, categoria própria excluída e lançamento excluído — gerando 7 registros de histórico (1 criação, 4 edições — valor, categoria, status, data efetiva —, 1 exclusão de categoria, 1 exclusão de lançamento).
+- `GET /historico` sem filtro → todos os 7 registros exibidos, ordenados por data/hora decrescente; nomes de categoria resolvidos corretamente mesmo para a categoria própria já excluída ("Pets Fase8") e para a categoria padrão ("Salário").
+- Filtro por período sem correspondência (`data_inicio`/`data_fim` de anos antes) → estado vazio exibido corretamente ("Nenhuma alteração encontrada para os filtros aplicados.").
+- Filtro por categoria própria já excluída (`categoria_id` da categoria excluída) → retornou corretamente apenas o registro de exclusão da própria categoria (o lançamento já não referencia mais essa categoria no estado atual, conforme decisão de implementação acima).
+- Filtro pela categoria padrão para a qual o lançamento foi migrado (`categoria_id` da categoria atual do lançamento) → retornou corretamente todo o histórico do lançamento (criação, as 4 edições e a exclusão), incluindo a edição do campo categoria com os dois nomes resolvidos ("Pets Fase8" → "Salário").
+- Segundo usuário de teste, sem nenhuma alteração própria → `GET /historico` exibe o estado vazio, confirmando isolamento por `usuario_id` (nenhum dado do primeiro usuário vazou).
+- Um erro foi encontrado e corrigido durante os testes (ver `docs/ERROS.md`, "Invalid parameter number ao filtrar o histórico por categoria/forma de pagamento") — reexecutados os mesmos testes após a correção, sem novos erros em `logs_erros`.
+
+**Resultado dos testes:** todos passaram. Dados de teste (usuários `teste.fase8@example.com` e `teste.fase8.b@example.com`, categoria "Pets Fase8", lançamento e respectivos registros em `historico_alteracoes`) foram removidos do banco ao final da validação.
+
+**Pendência conhecida:** nenhuma quanto aos critérios de pronto da fase. A paginação (20 itens/página) foi implementada seguindo o mesmo padrão já testado na tela de Lançamentos, mas não foi exercitada com mais de 20 registros reais neste ambiente de teste. A tela ainda usa o estilo básico das fases anteriores (não o design system completo do `docs/DESIGN.md`) — tratado de forma consolidada na Fase 9.
 
 ## Fase 7 — Painel financeiro (Dashboard) (detalhes)
 

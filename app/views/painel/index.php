@@ -116,6 +116,7 @@ $formatarMoeda = static fn (string $valor): string => 'R$ ' . number_format((flo
     <div class="rodape-link">
         <a href="<?= htmlspecialchars(Sessao::url('/categorias')) ?>">Categorias</a>
         · <a href="<?= htmlspecialchars(Sessao::url('/formas-pagamento')) ?>">Formas de pagamento</a>
+        · <a href="<?= htmlspecialchars(Sessao::url('/historico')) ?>">Histórico</a>
         · <a href="<?= htmlspecialchars(Sessao::url('/conta')) ?>">Minha conta</a>
         ·
         <form method="post" action="<?= htmlspecialchars(Sessao::url('/logout')) ?>" class="formulario-logout-inline">

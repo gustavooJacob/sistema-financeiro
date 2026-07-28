@@ -143,6 +143,7 @@ require __DIR__ . '/../partials/topo.php';
     <?php endif; ?>
 
     <div class="rodape-link">
-        <a href="<?= htmlspecialchars(Sessao::url('/painel')) ?>">Voltar ao painel</a>
+        <a href="<?= htmlspecialchars(Sessao::url('/historico')) ?>">Histórico</a>
+        · <a href="<?= htmlspecialchars(Sessao::url('/painel')) ?>">Voltar ao painel</a>
     </div>
 <?php require __DIR__ . '/../partials/fim.php'; ?>
