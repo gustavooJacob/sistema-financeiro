@@ -13,7 +13,7 @@
  * @var string $csrfToken
  * @var array|null $flash
  */
-require __DIR__ . '/topo.php';
+require __DIR__ . '/app_topo.php';
 
 $itensProprios = array_filter($itens, static fn (array $item): bool => (int) $item['padrao'] === 0);
 ?>
@@ -60,11 +60,4 @@ $itensProprios = array_filter($itens, static fn (array $item): bool => (int) $it
         <?php endforeach; ?>
     </ul>
 
-    <div class="rodape-link">
-        <a href="<?= htmlspecialchars(Sessao::url('/lancamentos')) ?>">Lançamentos</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/categorias')) ?>">Categorias</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/formas-pagamento')) ?>">Formas de pagamento</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/historico')) ?>">Histórico</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/painel')) ?>">Voltar ao painel</a>
-    </div>
-<?php require __DIR__ . '/fim.php'; ?>
+<?php require __DIR__ . '/app_fim.php'; ?>

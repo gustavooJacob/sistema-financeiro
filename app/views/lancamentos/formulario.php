@@ -11,7 +11,8 @@
  * @var array|null $flash
  */
 $classeCartaoExtra = 'cartao-largo';
-require __DIR__ . '/../partials/topo.php';
+$paginaAtiva = 'lancamentos';
+require __DIR__ . '/../partials/app_topo.php';
 
 $acao = $modo === 'criar' ? Sessao::url('/lancamentos/criar') : Sessao::url('/lancamentos/editar');
 $statusAtual = $valores['status'] ?? 'pendente';
@@ -97,4 +98,4 @@ $statusAtual = $valores['status'] ?? 'pendente';
             <a href="<?= htmlspecialchars(Sessao::url('/lancamentos')) ?>" class="botao-secundario botao-auto">Cancelar</a>
         </div>
     </form>
-<?php require __DIR__ . '/../partials/fim.php'; ?>
+<?php require __DIR__ . '/../partials/app_fim.php'; ?>

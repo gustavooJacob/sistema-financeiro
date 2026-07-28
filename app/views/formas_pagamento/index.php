@@ -4,4 +4,5 @@
  * Categorias — ver app/views/partials/lista_classificacao.php.
  */
 $classeCartaoExtra = 'cartao-largo';
+$paginaAtiva = 'formas_pagamento';
 require __DIR__ . '/../partials/lista_classificacao.php';

@@ -10,9 +10,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($tituloPagina ?? 'FinControle') ?></title>
-    <link rel="stylesheet" href="<?= htmlspecialchars(Sessao::url('/assets/css/auth.css')) ?>">
+    <link rel="stylesheet" href="<?= htmlspecialchars(Sessao::url('/assets/css/app.css')) ?>">
 </head>
-<body>
+<body class="tela-auth">
 <div class="cartao-autenticacao <?= htmlspecialchars($classeCartaoExtra ?? '') ?>">
     <?php if (!empty($flash)): ?>
         <div class="mensagem mensagem-<?= htmlspecialchars($flash['tipo']) ?>">

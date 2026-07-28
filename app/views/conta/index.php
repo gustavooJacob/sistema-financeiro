@@ -8,7 +8,8 @@
  */
 $tituloPagina = 'Conta — FinControle';
 $classeCartaoExtra = 'cartao-largo';
-require __DIR__ . '/../partials/topo.php';
+$paginaAtiva = 'conta';
+require __DIR__ . '/../partials/app_topo.php';
 ?>
     <h1>Conta</h1>
 
@@ -78,4 +79,4 @@ require __DIR__ . '/../partials/topo.php';
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
         <button type="submit" class="botao-perigo">Excluir minha conta</button>
     </form>
-<?php require __DIR__ . '/../partials/fim.php'; ?>
+<?php require __DIR__ . '/../partials/app_fim.php'; ?>

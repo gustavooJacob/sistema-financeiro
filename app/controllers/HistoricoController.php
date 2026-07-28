@@ -68,6 +68,7 @@ class HistoricoController
         $registros = array_map(fn (array $registro) => $this->prepararExibicao($registro), $resultado['itens']);
 
         $tituloPagina = 'Histórico de Alterações — FinControle';
+        $csrfToken = Sessao::gerarTokenCsrf();
         $flash = Sessao::consumirFlash();
         $categorias = $this->categoriaModel->listarAtivos($usuarioId);
         $formasPagamento = $this->formaPagamentoModel->listarAtivos($usuarioId);

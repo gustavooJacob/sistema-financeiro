@@ -15,7 +15,8 @@
  * @var array|null $flash
  */
 $classeCartaoExtra = 'cartao-tabela';
-require __DIR__ . '/../partials/topo.php';
+$paginaAtiva = 'lancamentos';
+require __DIR__ . '/../partials/app_topo.php';
 ?>
     <h1>Lançamentos</h1>
 
@@ -142,8 +143,4 @@ require __DIR__ . '/../partials/topo.php';
         <?php endif; ?>
     <?php endif; ?>
 
-    <div class="rodape-link">
-        <a href="<?= htmlspecialchars(Sessao::url('/historico')) ?>">Histórico</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/painel')) ?>">Voltar ao painel</a>
-    </div>
-<?php require __DIR__ . '/../partials/fim.php'; ?>
+<?php require __DIR__ . '/../partials/app_fim.php'; ?>

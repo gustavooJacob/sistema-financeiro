@@ -26,6 +26,7 @@ require __DIR__ . '/app/models/Conexao.php';
 require __DIR__ . '/app/services/LogErro.php';
 require __DIR__ . '/app/services/LogSeguranca.php';
 require __DIR__ . '/app/services/Sessao.php';
+require __DIR__ . '/app/services/Icone.php';
 require __DIR__ . '/app/services/EmailService.php';
 require __DIR__ . '/app/models/Usuario.php';
 require __DIR__ . '/app/models/TokenRecuperacaoSenha.php';

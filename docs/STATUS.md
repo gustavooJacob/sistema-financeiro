@@ -1,14 +1,14 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 8 concluída).
+**Última atualização:** 28/07/2026 (Fase 9 concluída).
 
 ## Estado atual
 
-Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard) e agora o Histórico de Alterações estão implementados e testados ponta a ponta. O usuário pode consultar todo o histórico de criação/edição/exclusão de lançamentos e de exclusão de categorias/formas de pagamento, incluindo itens já excluídos, com filtros por período/categoria/forma de pagamento. Falta apenas a consolidação final da identidade visual (Fase 9) e a revisão transversal de entrega.
+Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e agora a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). Falta apenas a revisão transversal final de entrega (Fase Final).
 
 ## Fase atual
 
-**Fase 8 — Histórico de alterações: ✅ Concluída.**
+**Fase 9 — Identidade visual (DESIGN.md) em todas as telas: ✅ Concluída.**
 
 ## Checklist por fase (ver detalhamento completo em `docs/PLANO.md`)
 
@@ -20,12 +20,39 @@ Módulo de autenticação e sessão, conta do usuário, categorias/formas de pag
 - [x] Fase 6 — Lançamentos financeiros (CRUD)
 - [x] Fase 7 — Painel financeiro (Dashboard)
 - [x] Fase 8 — Histórico de alterações
-- [ ] Fase 9 — Identidade visual (DESIGN.md) em todas as telas
+- [x] Fase 9 — Identidade visual (DESIGN.md) em todas as telas
 - [ ] Fase Final — Itens transversais e revisão de entrega
 
 ## Próximo passo recomendado
 
-Iniciar a **Fase 9 — Identidade visual (DESIGN.md) em todas as telas**: baixar e hospedar localmente Bootstrap, fonte Inter e ícones Lucide (Chart.js já foi baixado na Fase 7) em `assets/vendor/`, criar `assets/css/` definitivo aplicando a paleta/tipografia/espaçamentos do `docs/DESIGN.md` sobre o Bootstrap local, e revisar todas as telas construídas até aqui (que hoje usam apenas o estilo básico de `assets/css/auth.css`) quanto à aderência ao design system.
+Iniciar a **Fase Final — Itens transversais e revisão de entrega**: revisão de segurança (rotas, permissões, proteção de pastas internas, hashes), revisão de qualidade (validações, mensagens, estados de tela) e conferência final contra os Critérios de Aceitação Técnica e Funcional (FSD, Seção 26).
+
+## Fase 9 — Identidade visual (DESIGN.md) em todas as telas (detalhes)
+
+**O que foi implementado:**
+
+- **Bibliotecas baixadas e hospedadas localmente em `assets/vendor/`** (sem CDN, conforme FSD Seção 3): Bootstrap 5.3.3 (`bootstrap.min.css` + `bootstrap.bundle.min.js`, apenas os arquivos finais minificados), fonte Inter (`InterVariable.woff2`, arquivo variável único cobrindo os pesos 400/500/600 usados no DESIGN.md) e os ícones Lucide usados no sistema (`assets/vendor/icons/*.svg` — navegação, ações de tabela, estados). Chart.js já havia sido baixado na Fase 7. Ver `assets/vendor/README.md` atualizado.
+- **`app/services/Icone.php`**: helper novo que lê o SVG do ícone solicitado (lista restrita a `[a-z0-9-]`, sem entrada de usuário) e o imprime inline no HTML (permite colorir via CSS usando `stroke="currentColor"`, conforme DESIGN.md Seção 10).
+- **`assets/css/app.css`**: substitui o `assets/css/auth.css` das fases anteriores. Implementa integralmente os tokens do `docs/DESIGN.md` (paleta de cores completa, tipografia Inter com `@font-face` local, espaçamentos em grade de 4px, raios `sm/md/lg/pill`, sombra de card sutil) e os componentes (cards, botões primário/secundário/ghost/perigo, badges, tabelas, formulários, paginação, estados vazio/erro/sucesso), reaproveitando os mesmos nomes de classe já usados nas Views desde a Fase 3 (para não exigir reescrita de HTML) e acrescentando as classes do novo shell de navegação (`app-shell`, `sidebar`, `sidebar-item`, `conteudo-principal`, `cartao`).
+- **Sidebar de navegação por ícones** (FSD Seção 16; DESIGN.md Seção 8): nova estrutura de layout `app/views/partials/app_topo.php` + `app/views/partials/app_fim.php`, usada por todas as telas internas autenticadas (Painel, Lançamentos, Categorias, Formas de Pagamento, Histórico, Conta). Sidebar de 56px com os 6 ícones (`title` como tooltip, já que a sidebar não exibe texto), item ativo destacado com fundo `brand.primary_soft` (controlado pela variável `$paginaAtiva` que cada Controller/View define) e botão "Sair" no rodapé (com proteção CSRF, igual às demais ações de escrita).
+- **Telas de pré-autenticação** (cadastro, login, recuperar/redefinir senha, erro genérico): continuam usando o parcial original `app/views/partials/topo.php`/`fim.php` (cartão único centralizado, sem sidebar, pois o usuário ainda não está autenticado), agora carregando `assets/css/app.css` em vez do antigo `auth.css`.
+- Todas as Views internas (`conta/index.php`, `categorias/index.php`, `formas_pagamento/index.php`, `partials/lista_classificacao.php`, `lancamentos/index.php`, `lancamentos/formulario.php`, `painel/index.php`, `historico/index.php`) foram atualizadas para usar `app_topo.php`/`app_fim.php` e definir `$paginaAtiva`; os links de rodapé manuais duplicados (que existiam antes da sidebar) foram removidos, já que a navegação agora é feita pela sidebar.
+- **`app/controllers/HistoricoController.php`**: passou a gerar `$csrfToken` (não gerava antes, pois a tela não tinha nenhum formulário de escrita) para que o botão "Sair" da sidebar funcione corretamente nessa tela.
+- Nenhuma regra de negócio, validação ou lógica de Controller/Model foi alterada nesta fase — apenas a camada de apresentação (Views/CSS/assets).
+
+**Testes executados (Chrome embutido, com Apache/MySQL do XAMPP em execução, `http://localhost:8080/sistema_financeiro`):**
+- Todos os arquivos PHP alterados/criados passaram em `php -l` (sem erro de sintaxe).
+- Cadastro e login de um usuário de teste (`teste.fase9@example.com`) → tela de login/cadastro renderiza corretamente com o novo `app.css` (cartão único, sem sidebar).
+- Painel Financeiro (estado vazio e, em seguida, com 1 lançamento criado) → sidebar renderizada com os 6 ícones e o item "Painel" destacado; cards de indicadores, gráfico Chart.js (doughnut) e listas exibidos corretamente; nenhum erro no console do navegador.
+- Criação de lançamento (`/lancamentos/novo`) → formulário com o item "Lançamentos" destacado na sidebar; após salvar, mensagem de sucesso e tabela de lançamentos (badges de tipo/status) renderizadas corretamente.
+- Telas de Categorias e Histórico de Alterações → sidebar com o item correspondente destacado, badges "Padrão do sistema", tabela e filtros exibidos corretamente.
+- Tela de Conta → item "Minha conta" destacado; botão "Sair" da **sidebar** (não o da própria tela) testado especificamente, pois usa um token CSRF gerado por um Controller (`HistoricoController`) que antes não gerava token nenhum — logout funcionou corretamente e redirecionou para `/login`.
+- Rota inexistente → página de erro genérica (`erro_generico.php`) renderizada com o layout de pré-autenticação (cartão único, sem sidebar), sem mensagem técnica.
+- Verificação de rede: `assets/vendor/bootstrap/css/bootstrap.min.css`, `assets/vendor/fonts/InterVariable.woff2` e `assets/vendor/icons/plus.svg` → HTTP 200 (assets públicos); `config/config.php`, `app/models/Conexao.php`, `database/migrations/run.php`, `logs/erros` → continuam HTTP 403 (proteção de pastas internas mantida).
+
+**Resultado dos testes:** todos passaram. Dados de teste (usuário `teste.fase9@example.com`, lançamento e registro em `historico_alteracoes`) foram removidos do banco ao final da validação.
+
+**Pendência conhecida:** nenhuma quanto aos critérios de pronto da fase. Um leiaute responsivo mais refinado para telas muito estreitas (menores que os breakpoints já cobertos no painel) não foi exigido pelo FSD (sistema é web, sem requisito explícito de app mobile) e não foi aprofundado além do que já existia.
 
 ## Fase 8 — Histórico de alterações (detalhes)
 

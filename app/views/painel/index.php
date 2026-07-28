@@ -12,7 +12,8 @@
  * @var array $resumo
  */
 $classeCartaoExtra = 'cartao-painel';
-require __DIR__ . '/../partials/topo.php';
+$paginaAtiva = 'painel';
+require __DIR__ . '/../partials/app_topo.php';
 
 $formatarMoeda = static fn (string $valor): string => 'R$ ' . number_format((float) $valor, 2, ',', '.');
 ?>
@@ -113,18 +114,6 @@ $formatarMoeda = static fn (string $valor): string => 'R$ ' . number_format((flo
         </div>
     <?php endif; ?>
 
-    <div class="rodape-link">
-        <a href="<?= htmlspecialchars(Sessao::url('/categorias')) ?>">Categorias</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/formas-pagamento')) ?>">Formas de pagamento</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/historico')) ?>">Histórico</a>
-        · <a href="<?= htmlspecialchars(Sessao::url('/conta')) ?>">Minha conta</a>
-        ·
-        <form method="post" action="<?= htmlspecialchars(Sessao::url('/logout')) ?>" class="formulario-logout-inline">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-            <button type="submit" class="botao-link">Sair</button>
-        </form>
-    </div>
-
     <?php if (!empty($resumo['grafico_categorias'])): ?>
         <script src="<?= htmlspecialchars(Sessao::url('/assets/vendor/chartjs/chart.umd.min.js')) ?>"></script>
         <script>
@@ -154,4 +143,4 @@ $formatarMoeda = static fn (string $valor): string => 'R$ ' . number_format((flo
             });
         </script>
     <?php endif; ?>
-<?php require __DIR__ . '/../partials/fim.php'; ?>
+<?php require __DIR__ . '/../partials/app_fim.php'; ?>
