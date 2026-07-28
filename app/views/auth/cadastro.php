@@ -14,7 +14,7 @@ require __DIR__ . '/../partials/topo.php';
         <div class="mensagem mensagem-erro"><?= htmlspecialchars($erros['geral']) ?></div>
     <?php endif; ?>
 
-    <form method="post" action="/cadastro" novalidate>
+    <form method="post" action="<?= htmlspecialchars(Sessao::url('/cadastro')) ?>" novalidate>
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
         <div class="campo">
@@ -45,6 +45,6 @@ require __DIR__ . '/../partials/topo.php';
     </form>
 
     <div class="rodape-link">
-        Já tem uma conta? <a href="/login">Entrar</a>
+        Já tem uma conta? <a href="<?= htmlspecialchars(Sessao::url('/login')) ?>">Entrar</a>
     </div>
 <?php require __DIR__ . '/../partials/fim.php'; ?>

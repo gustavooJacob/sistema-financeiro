@@ -13,6 +13,6 @@ require __DIR__ . '/../partials/topo.php';
         <?= htmlspecialchars($mensagem ?? 'Ocorreu um erro ao processar sua solicitação. Tente novamente.') ?>
     </div>
     <div class="rodape-link">
-        <a href="/login">Voltar ao início</a>
+        <a href="<?= htmlspecialchars(Sessao::url('/login')) ?>">Voltar ao início</a>
     </div>
 <?php require __DIR__ . '/../partials/fim.php'; ?>

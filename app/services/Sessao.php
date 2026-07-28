@@ -13,14 +13,16 @@ class Sessao
 {
     private static bool $iniciada = false;
     private static array $config = [];
+    private static string $caminhoBase = '';
 
-    public static function iniciar(array $config): void
+    public static function iniciar(array $config, string $caminhoBase = ''): void
     {
         if (self::$iniciada) {
             return;
         }
 
         self::$config = $config;
+        self::$caminhoBase = rtrim($caminhoBase, '/');
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_set_cookie_params([
@@ -147,9 +149,19 @@ class Sessao
         return $flash;
     }
 
+    /**
+     * Monta uma URL absoluta para a aplicação, incluindo a subpasta em que
+     * o projeto estiver instalado (ex.: "/sistema_financeiro"), sem
+     * depender de nome fixo (FSD, Seção 4/25).
+     */
+    public static function url(string $caminho): string
+    {
+        return self::$caminhoBase . '/' . ltrim($caminho, '/');
+    }
+
     public static function redirecionar(string $caminho): never
     {
-        header('Location: ' . $caminho);
+        header('Location: ' . self::url($caminho));
         exit;
     }
 }

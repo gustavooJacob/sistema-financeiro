@@ -32,7 +32,12 @@ require __DIR__ . '/app/models/TokenRecuperacaoSenha.php';
 require __DIR__ . '/app/controllers/AuthController.php';
 require __DIR__ . '/app/controllers/PainelController.php';
 
-Sessao::iniciar($config);
+// Caminho base da aplicação (ex.: "/sistema_financeiro" no XAMPP, ou a
+// subpasta equivalente na hospedagem final), detectado a partir do próprio
+// index.php — nunca fixo no código (FSD, Seção 4/25).
+$scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+Sessao::iniciar($config, $scriptDir);
 
 set_exception_handler(static function (Throwable $erro) {
     LogErro::registrar(get_class($erro), $erro->getMessage(), $_SERVER['REQUEST_URI'] ?? null, Sessao::usuarioId());
@@ -42,7 +47,6 @@ set_exception_handler(static function (Throwable $erro) {
 });
 
 // Extrai a rota (caminho relativo à pasta do projeto, sem query string).
-$scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 
 $rota = $uri;

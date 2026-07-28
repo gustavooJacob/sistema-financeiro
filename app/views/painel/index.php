@@ -16,7 +16,7 @@ require __DIR__ . '/../partials/topo.php';
         Login realizado com sucesso como <strong><?= htmlspecialchars($emailUsuario ?? '') ?></strong>.<br>
         O painel financeiro completo será implementado na Fase 7.
     </p>
-    <form method="post" action="/logout">
+    <form method="post" action="<?= htmlspecialchars(Sessao::url('/logout')) ?>">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
         <button type="submit" class="botao-primario">Sair</button>
     </form>

@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($tituloPagina ?? 'FinControle') ?></title>
-    <link rel="stylesheet" href="/assets/css/auth.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars(Sessao::url('/assets/css/auth.css')) ?>">
 </head>
 <body>
 <div class="cartao-autenticacao">

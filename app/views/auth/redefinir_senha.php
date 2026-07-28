@@ -16,10 +16,10 @@ require __DIR__ . '/../partials/topo.php';
             Este link de redefinição de senha é inválido ou já expirou. Solicite um novo link.
         </div>
         <div class="rodape-link">
-            <a href="/recuperar-senha">Solicitar novo link</a>
+            <a href="<?= htmlspecialchars(Sessao::url('/recuperar-senha')) ?>">Solicitar novo link</a>
         </div>
     <?php else: ?>
-        <form method="post" action="/redefinir-senha" novalidate>
+        <form method="post" action="<?= htmlspecialchars(Sessao::url('/redefinir-senha')) ?>" novalidate>
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 

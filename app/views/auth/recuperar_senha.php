@@ -16,10 +16,10 @@ require __DIR__ . '/../partials/topo.php';
             Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.
         </div>
         <div class="rodape-link">
-            <a href="/login">Voltar ao login</a>
+            <a href="<?= htmlspecialchars(Sessao::url('/login')) ?>">Voltar ao login</a>
         </div>
     <?php else: ?>
-        <form method="post" action="/recuperar-senha" novalidate>
+        <form method="post" action="<?= htmlspecialchars(Sessao::url('/recuperar-senha')) ?>" novalidate>
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
             <div class="campo">
@@ -34,7 +34,7 @@ require __DIR__ . '/../partials/topo.php';
         </form>
 
         <div class="rodape-link">
-            <a href="/login">Voltar ao login</a>
+            <a href="<?= htmlspecialchars(Sessao::url('/login')) ?>">Voltar ao login</a>
         </div>
     <?php endif; ?>
 <?php require __DIR__ . '/../partials/fim.php'; ?>
