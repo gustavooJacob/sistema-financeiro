@@ -106,6 +106,15 @@ class Sessao
         return $_SESSION['usuario_email'] ?? null;
     }
 
+    /**
+     * Atualiza o e-mail refletido na sessão ativa após uma alteração de
+     * conta bem-sucedida (FSD, Seção 6 — edição de e-mail/senha).
+     */
+    public static function atualizarEmail(string $email): void
+    {
+        $_SESSION['usuario_email'] = $email;
+    }
+
     public static function exigirAutenticacao(): void
     {
         if (!self::estaAutenticado()) {

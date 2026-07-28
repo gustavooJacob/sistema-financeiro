@@ -20,4 +20,8 @@ require __DIR__ . '/../partials/topo.php';
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
         <button type="submit" class="botao-primario">Sair</button>
     </form>
+
+    <div class="rodape-link">
+        <a href="<?= htmlspecialchars(Sessao::url('/conta')) ?>">Minha conta</a>
+    </div>
 <?php require __DIR__ . '/../partials/fim.php'; ?>

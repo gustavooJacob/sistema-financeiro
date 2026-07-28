@@ -1,21 +1,21 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 3 concluída).
+**Última atualização:** 28/07/2026 (Fase 4 concluída).
 
 ## Estado atual
 
-Módulo de autenticação e sessão implementado e testado ponta a ponta: cadastro, login, logout, recuperação/redefinição de senha, bloqueio por tentativas e proteção de rotas por sessão. O sistema agora tem roteamento real (`index.php`) e uma primeira rota protegida (`/painel`, ainda um placeholder — o painel financeiro completo é a Fase 7).
+Módulo de autenticação e sessão implementado e testado ponta a ponta: cadastro, login, logout, recuperação/redefinição de senha, bloqueio por tentativas e proteção de rotas por sessão. O sistema agora tem roteamento real (`index.php`) e a tela de Conta/Perfil permite ao usuário autenticado editar e-mail/senha e excluir a própria conta (soft delete). O painel financeiro (`/painel`) segue como placeholder — o painel completo é a Fase 7.
 
 ## Fase atual
 
-**Fase 3 — Autenticação, sessão e controle de acesso: ✅ Concluída.**
+**Fase 4 — Conta do usuário (perfil): ✅ Concluída.**
 
 ## Checklist por fase (ver detalhamento completo em `docs/PLANO.md`)
 
 - [x] Fase 1 — Infraestrutura e base do projeto
 - [x] Fase 2 — Banco de dados e persistência
 - [x] Fase 3 — Autenticação, sessão e controle de acesso
-- [ ] Fase 4 — Conta do usuário (perfil)
+- [x] Fase 4 — Conta do usuário (perfil)
 - [ ] Fase 5 — Categorias e Formas de Pagamento
 - [ ] Fase 6 — Lançamentos financeiros (CRUD)
 - [ ] Fase 7 — Painel financeiro (Dashboard)
@@ -25,7 +25,38 @@ Módulo de autenticação e sessão implementado e testado ponta a ponta: cadast
 
 ## Próximo passo recomendado
 
-Iniciar a **Fase 4 — Conta do usuário (perfil)**: edição de e-mail/senha mediante confirmação da senha atual e exclusão (soft delete) da própria conta, registrando eventos sensíveis no log de segurança.
+Iniciar a **Fase 5 — Categorias e Formas de Pagamento**: models, controllers e views para listagem, criação e exclusão (soft delete) de categorias e formas de pagamento próprias, respeitando os itens padrão do sistema.
+
+## Fase 4 — Conta do usuário (perfil) (detalhes)
+
+**O que foi implementado:**
+
+- **`app/models/Usuario.php`**: dois métodos novos — `atualizarEmail()` (atualiza o e-mail do usuário autenticado) e `excluir()` (soft delete: apenas preenche `excluido_em`/`atualizado_em`, sem apagar a linha nem os dados financeiros vinculados).
+- **`app/services/Sessao.php`**: método `atualizarEmail()`, que reflete na sessão ativa o novo e-mail assim que a alteração é salva (sem exigir novo login).
+- **`app/controllers/ContaController.php`**: rota protegida `/conta` (exige sessão ativa, como todas as rotas internas):
+  - `exibir()` — mostra o e-mail atual e o formulário de edição.
+  - `processarEditar()` — exige a senha atual (via `password_verify`) para qualquer alteração; valida formato e unicidade do novo e-mail (ignorando o próprio usuário); troca de senha é opcional (só valida tamanho mínimo e confirmação se os campos de nova senha forem preenchidos); registra `email_alterado` e/ou `senha_alterada` no log de segurança apenas quando o respectivo dado muda de fato.
+  - `processarExcluir()` — soft delete da conta, encerra a sessão imediatamente e registra `conta_excluida` no log de segurança.
+  - Proteção CSRF em ambas as ações de escrita, seguindo o mesmo padrão do `AuthController`.
+- **View `app/views/conta/index.php`**: formulário único de e-mail/senha (com senha atual obrigatória), botão "Sair" e botão de perigo "Excluir minha conta" com confirmação via `confirm()` do próprio navegador (não há biblioteca de modal/JS de terceiros nesta fase — Bootstrap só é baixado na Fase 9; optou-se pelo `confirm()` nativo do JavaScript puro para atender ao requisito de "confirmação em modal" do FSD sem antecipar a Fase 9).
+- **`app/views/partials/topo.php`**: passou a aceitar uma classe extra opcional (`$classeCartaoExtra`) para o cartão principal, usada pela tela de Conta (`cartao-largo`, 480px) sem alterar as demais telas, que continuam com a largura padrão de 380px.
+- **`assets/css/auth.css`**: classes novas `cartao-largo`, `botao-secundario`, `botao-perigo`, `separador-secao`, `secao-titulo`, `secao-descricao` e estilo de campo somente leitura — reaproveitando a paleta/tipografia já usada nas telas de autenticação (aplicação definitiva do DESIGN.md em todas as telas é a Fase 9).
+- **`app/views/painel/index.php`**: adicionado link "Minha conta" para a nova tela (o menu de navegação completo do FSD, Seção 16, é construído perto da Fase 9, junto da identidade visual final).
+- Rotas adicionadas em `index.php`: `GET /conta`, `POST /conta/editar`, `POST /conta/excluir`.
+
+**Decisão de implementação:** a exclusão da conta (soft delete) preenche apenas `excluido_em`, mantendo o `email` original na coluna (que tem índice único). Isso significa que o mesmo e-mail de uma conta excluída não pode ser reaproveitado em um novo cadastro nesta versão — o FSD não trata esse cenário explicitamente e a decisão foi não alterar o e-mail armazenado (ex.: anonimizá-lo), para preservar a rastreabilidade em `logs_seguranca` sem inventar comportamento fora do escopo definido.
+
+**Testes executados (via `curl`, com o Apache/MySQL do XAMPP em execução, usando `http://localhost:8080/sistema_financeiro`):**
+- Acesso a `/conta` sem sessão ativa → redireciona para `/login`; com sessão ativa → exibe a tela com o e-mail atual.
+- Alteração de conta com senha atual incorreta → bloqueada com mensagem "Senha atual incorreta.", nenhuma alteração salva.
+- Alteração de e-mail e senha simultaneamente, com senha atual correta → ambos atualizados; sessão passou a refletir o novo e-mail sem precisar de novo login; eventos `email_alterado` e `senha_alterada` registrados em `logs_seguranca`.
+- Login com a senha antiga após a troca → rejeitado ("E-mail ou senha inválidos."); login com a nova senha → sucesso.
+- Envio de `/conta/editar` com token CSRF inválido → bloqueado com HTTP 400 e evento `acesso_negado` registrado.
+- Exclusão da própria conta → `excluido_em` preenchido no banco, sessão encerrada imediatamente; tentativa de login subsequente com as mesmas credenciais → rejeitada ("E-mail ou senha inválidos.", pois `buscarPorEmail`/`buscarPorId` sempre filtram `excluido_em IS NULL`); acesso a `/conta` após a exclusão → redireciona para `/login`.
+
+**Resultado dos testes:** todos passaram. Dados de teste (usuário `teste.fase4(.novo)@example.com` e respectivos registros em `logs_seguranca`) foram removidos do banco ao final da validação.
+
+**Pendência conhecida:** nenhuma. A tela de Conta ainda usa o estilo básico das telas de autenticação (não o design system completo do `docs/DESIGN.md`), assim como todas as telas construídas até aqui — isso é tratado de forma consolidada na Fase 9.
 
 ## Fase 3 — Autenticação, sessão e controle de acesso (detalhes)
 

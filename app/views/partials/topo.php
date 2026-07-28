@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $tituloPagina
+ * @var string|null $classeCartaoExtra
  */
 ?>
 <!DOCTYPE html>
@@ -12,7 +13,7 @@
     <link rel="stylesheet" href="<?= htmlspecialchars(Sessao::url('/assets/css/auth.css')) ?>">
 </head>
 <body>
-<div class="cartao-autenticacao">
+<div class="cartao-autenticacao <?= htmlspecialchars($classeCartaoExtra ?? '') ?>">
     <?php if (!empty($flash)): ?>
         <div class="mensagem mensagem-<?= htmlspecialchars($flash['tipo']) ?>">
             <?= htmlspecialchars($flash['mensagem']) ?>

@@ -114,4 +114,25 @@ class Usuario
         );
         $stmt->execute(['senha_hash' => $senhaHash, 'id' => $id]);
     }
+
+    public function atualizarEmail(int $id, string $novoEmail): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE usuarios SET email = :email, atualizado_em = NOW() WHERE id = :id'
+        );
+        $stmt->execute(['email' => $novoEmail, 'id' => $id]);
+    }
+
+    /**
+     * Exclusão da própria conta (soft delete — FSD, Seção 6/Módulo 1).
+     * Os dados financeiros do usuário permanecem no banco, preservando
+     * integridade e histórico; apenas o acesso é impedido a partir daqui.
+     */
+    public function excluir(int $id): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE usuarios SET excluido_em = NOW(), atualizado_em = NOW() WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+    }
 }

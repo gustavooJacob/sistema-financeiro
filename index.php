@@ -31,6 +31,7 @@ require __DIR__ . '/app/models/Usuario.php';
 require __DIR__ . '/app/models/TokenRecuperacaoSenha.php';
 require __DIR__ . '/app/controllers/AuthController.php';
 require __DIR__ . '/app/controllers/PainelController.php';
+require __DIR__ . '/app/controllers/ContaController.php';
 
 // Caminho base da aplicação (ex.: "/sistema_financeiro" no XAMPP, ou a
 // subpasta equivalente na hospedagem final), detectado a partir do próprio
@@ -68,6 +69,7 @@ try {
 
 $authController = new AuthController($pdo, $config);
 $painelController = new PainelController();
+$contaController = new ContaController($pdo, $config);
 
 $rotas = [
     'GET /' => static fn () => Sessao::estaAutenticado()
@@ -83,6 +85,9 @@ $rotas = [
     'GET /redefinir-senha' => [$authController, 'exibirRedefinirSenha'],
     'POST /redefinir-senha' => [$authController, 'processarRedefinirSenha'],
     'GET /painel' => [$painelController, 'index'],
+    'GET /conta' => [$contaController, 'exibir'],
+    'POST /conta/editar' => [$contaController, 'processarEditar'],
+    'POST /conta/excluir' => [$contaController, 'processarExcluir'],
 ];
 
 $chave = $metodo . ' ' . $rota;
