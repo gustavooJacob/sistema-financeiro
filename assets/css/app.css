@@ -121,10 +121,21 @@ body.tela-app {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 0;
+    padding: 16px 8px;
     position: sticky;
     top: 0;
     height: 100vh;
+    overflow: hidden;
+    transition: width 0.15s ease, flex-basis 0.15s ease;
+}
+
+/* Sidebar expandida (menu "hambúrguer" clicado) — estado lembrado entre
+   páginas via localStorage (ver app_topo.php), pois cada navegação recarrega
+   a página inteira. */
+html.sidebar-expandida .sidebar {
+    width: 220px;
+    flex: 0 0 220px;
+    align-items: stretch;
 }
 
 .sidebar-menu {
@@ -141,14 +152,39 @@ body.tela-app {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0;
     width: 36px;
     height: 36px;
+    padding: 0;
     border-radius: var(--raio-sm);
     color: var(--cor-icone);
     background: transparent;
     border: none;
     cursor: pointer;
     text-decoration: none;
+    white-space: nowrap;
+}
+
+html.sidebar-expandida .sidebar-item {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 0 8px;
+}
+
+.sidebar-item-rotulo {
+    display: none;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+html.sidebar-expandida .sidebar-item-rotulo {
+    display: inline;
+}
+
+.sidebar-hamburguer {
+    margin-bottom: 12px;
+    flex-shrink: 0;
 }
 
 .sidebar-item:hover {
@@ -165,6 +201,7 @@ body.tela-app {
     margin: 0;
     padding-top: 16px;
     border-top: 1px solid var(--cor-divisor);
+    flex-shrink: 0;
 }
 
 .conteudo-principal {
@@ -180,6 +217,7 @@ body.tela-app {
     box-shadow: var(--sombra-cartao);
     padding: 20px;
     max-width: 640px;
+    margin: 0 auto;
 }
 
 .cartao h1 {
@@ -689,6 +727,21 @@ body.tela-app {
     border: 1px solid var(--cor-borda-sutil);
     border-radius: var(--raio-lg);
     padding: 16px;
+}
+
+/* Contêiner de tamanho fixo para o gráfico Chart.js — sem isso, o Chart.js
+   (responsive: true) recalcula o próprio canvas a cada redimensionamento da
+   janela e ele cresce descontroladamente ao alternar entre tela pequena e
+   grande, pois não há uma referência de altura estável para se basear. */
+.grafico-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+}
+
+.grafico-container canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .lista-painel {

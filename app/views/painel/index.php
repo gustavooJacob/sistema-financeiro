@@ -62,7 +62,9 @@ $formatarMoeda = static fn (string $valor): string => 'R$ ' . number_format((flo
                 <?php if (empty($resumo['grafico_categorias'])): ?>
                     <p class="secao-descricao">Nenhuma despesa registrada neste mês.</p>
                 <?php else: ?>
-                    <canvas id="grafico-categorias" height="220"></canvas>
+                    <div class="grafico-container">
+                        <canvas id="grafico-categorias"></canvas>
+                    </div>
                 <?php endif; ?>
             </div>
 
@@ -136,6 +138,8 @@ $formatarMoeda = static fn (string $valor): string => 'R$ ' . number_format((flo
                     }],
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'bottom', labels: { font: { size: 11 } } },
                     },
