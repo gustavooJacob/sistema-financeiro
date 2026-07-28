@@ -1,10 +1,23 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase Final concluída).
+**Última atualização:** 28/07/2026 (Documentação final de manutenção criada).
 
 ## Estado atual
 
 O FinControle está com todas as fases do `docs/PLANO.md` concluídas, incluindo a Fase Final de revisão transversal de segurança e qualidade. Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). A revisão de segurança (Seção 24 do FSD) e a conferência contra os Critérios de Aceitação (Seção 26 do FSD) foram concluídas sem pendências bloqueantes.
+
+## Documentação final de manutenção (28/07/2026)
+
+Com todas as fases funcionais e a revisão de segurança já concluídas, foi criada a documentação final para manutenção futura do sistema:
+
+- **`docs/MANUTENCAO.md` criado** — guia completo para quem for alterar o sistema no futuro: visão geral, stack e ambientes, como rodar localmente, mapa de pastas, banco de dados/migrations, autenticação/autorização, como adicionar tela/campo/regra de negócio, como testar, cuidados de segurança, como registrar progresso e o que não fazer.
+- **`docs/COMO-PEDIR-MUDANCAS.md` criado** — guia para uma pessoa leiga pedir alterações a uma IA, com checklist de aceitação e 8 modelos de prompt prontos (campo novo, tela nova, correção de erro, regra de negócio, ajuste visual, filtro/relatório, revisão de segurança, preparação de commit).
+- **`CLAUDE.md` atualizado para modo manutenção** — passou a orientar sobre alterações pontuais num sistema já em produção (não mais construção de fases novas), reforçando o protocolo de leitura obrigatória (`MANUTENCAO.md`, `FSD.md`, `DESIGN.md`, `STATUS.md`, `ERROS.md`), as regras de segurança já implementadas e a orientação de testar/documentar/commitar a cada alteração.
+- Nenhuma funcionalidade nova foi implementada nesta etapa; nenhum deploy foi realizado.
+
+**Pendências:** nenhuma quanto a esta etapa de documentação — todas as fases funcionais e a revisão de segurança já estavam concluídas antes de iniciá-la.
+
+**Próximo passo recomendado:** abrir um chat novo e usar o prompt de publicação/deploy (passo 7 do fluxo do usuário) quando desejar publicar o sistema na Hostnet.
 
 **Ajustes de UI feitos após a Fase 9, a pedido do usuário (commit "Ajustes de UI: sidebar retratil, conteudo centralizado e correcao do grafico"):**
 - Sidebar passou a ser retrátil: um botão "hambúrguer" no topo expande a sidebar de 56px para 220px, exibindo o rótulo de texto de cada item (além do ícone); o estado expandida/recolhida fica salvo em `localStorage` do navegador, já que cada navegação recarrega a página inteira (ver `app/views/partials/app_topo.php` e as classes `html.sidebar-expandida ...` em `assets/css/app.css`). Esta é uma extensão da sidebar 56px descrita no `docs/DESIGN.md` (Seção 8), que originalmente previa apenas ícones com tooltip — o comportamento retrátil foi um pedido explícito do usuário.
