@@ -1,10 +1,10 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 9 concluída + ajustes de UI solicitados pelo usuário).
+**Última atualização:** 28/07/2026 (Fase Final concluída).
 
 ## Estado atual
 
-Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). Falta apenas a revisão transversal final de entrega (Fase Final).
+O FinControle está com todas as fases do `docs/PLANO.md` concluídas, incluindo a Fase Final de revisão transversal de segurança e qualidade. Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). A revisão de segurança (Seção 24 do FSD) e a conferência contra os Critérios de Aceitação (Seção 26 do FSD) foram concluídas sem pendências bloqueantes.
 
 **Ajustes de UI feitos após a Fase 9, a pedido do usuário (commit "Ajustes de UI: sidebar retratil, conteudo centralizado e correcao do grafico"):**
 - Sidebar passou a ser retrátil: um botão "hambúrguer" no topo expande a sidebar de 56px para 220px, exibindo o rótulo de texto de cada item (além do ícone); o estado expandida/recolhida fica salvo em `localStorage` do navegador, já que cada navegação recarrega a página inteira (ver `app/views/partials/app_topo.php` e as classes `html.sidebar-expandida ...` em `assets/css/app.css`). Esta é uma extensão da sidebar 56px descrita no `docs/DESIGN.md` (Seção 8), que originalmente previa apenas ícones com tooltip — o comportamento retrátil foi um pedido explícito do usuário.
@@ -14,7 +14,7 @@ Módulo de autenticação e sessão, conta do usuário, categorias/formas de pag
 
 ## Fase atual
 
-**Fase 9 — Identidade visual (DESIGN.md) em todas as telas: ✅ Concluída.**
+**Fase Final — Itens transversais e revisão de entrega: ✅ Concluída.**
 
 ## Checklist por fase (ver detalhamento completo em `docs/PLANO.md`)
 
@@ -27,11 +27,46 @@ Módulo de autenticação e sessão, conta do usuário, categorias/formas de pag
 - [x] Fase 7 — Painel financeiro (Dashboard)
 - [x] Fase 8 — Histórico de alterações
 - [x] Fase 9 — Identidade visual (DESIGN.md) em todas as telas
-- [ ] Fase Final — Itens transversais e revisão de entrega
+- [x] Fase Final — Itens transversais e revisão de entrega
 
 ## Próximo passo recomendado
 
-Iniciar a **Fase Final — Itens transversais e revisão de entrega**: revisão de segurança (rotas, permissões, proteção de pastas internas, hashes), revisão de qualidade (validações, mensagens, estados de tela) e conferência final contra os Critérios de Aceitação Técnica e Funcional (FSD, Seção 26).
+Todas as fases do `docs/PLANO.md` estão concluídas. Não há próxima fase de codificação pendente. Recomenda-se abrir um chat novo e usar o prompt de **validação de segurança** (passo 5 do fluxo definido pelo usuário) para uma revisão independente antes da publicação em produção (Hostnet).
+
+## Fase Final — Itens transversais e revisão de entrega (detalhes)
+
+**O que foi feito:**
+
+- **Auditoria de segurança e qualidade** (revisão manual + revisão dirigida de todo `app/controllers/`, `app/models/`, `app/services/`, `app/views/`, `index.php` e `.htaccess` de todas as pastas internas), cobrindo os itens da Seção 24 do FSD:
+  - CSRF: confirmado que toda ação POST valida o token antes de processar, em todos os Controllers.
+  - Isolamento de dados: confirmado que toda leitura/edição/exclusão de lançamento, categoria ou forma de pagamento valida `usuario_id` tanto no Controller quanto na cláusula `WHERE` da query (dupla camada), com mensagem genérica e registro de `acesso_negado` em `logs_seguranca` quando a posse falha.
+  - SQL: confirmado que 100% das queries usam prepared statements (PDO); nenhuma concatenação de entrada do usuário em SQL. As poucas interpolações de string em SQL existentes (nome de tabela em `ItemClassificacao`, fragmentos de `WHERE` em `Lancamento::listar()`/`Historico::listar()`) vêm de whitelists fechadas no código ou de valores calculados internamente, nunca de entrada livre do usuário.
+  - XSS: confirmado que toda saída dinâmica nas Views passa por `htmlspecialchars()`.
+  - Sessão/rotas protegidas: confirmado que toda rota interna chama `Sessao::exigirAutenticacao()` antes de processar, além da checagem centralizada em `index.php`.
+  - Mensagens de erro: confirmado que nenhuma tela expõe SQL, stack trace, nome de classe PHP ou caminho de arquivo ao usuário final; `index.php` tem `set_exception_handler` central e tratamento à parte para falha de conexão com o banco, ambos com mensagem genérica.
+  - Senhas e tokens: confirmado uso de `password_hash`/`password_verify` e hash SHA-256 de uso único para token de recuperação de senha.
+  - Pastas internas: confirmado (teste manual no navegador) que `config/`, `app/`, `database/` e `logs/` retornam HTTP 403 diretamente por URL.
+- **Dois reforços defensivos aplicados como resultado da auditoria** (sem alterar comportamento funcional nem regra de negócio):
+  - `app/views/painel/index.php`: os dados do gráfico de gastos por categoria (nomes de categoria definidos pelo próprio usuário) são impressos dentro de uma tag `<script>` via `json_encode`. Adicionadas as flags `JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT` (além da já existente `JSON_UNESCAPED_UNICODE`) para eliminar qualquer possibilidade futura de quebra de contexto HTML/JS caso o nome de uma categoria contenha caracteres como `<`, `>`, `&` ou aspas. Não havia exploração viável antes (o escape padrão de `/` do `json_encode` já impedia o vetor mais óbvio), mas o reforço deixa a proteção explícita e não dependente de um comportamento padrão implícito do PHP.
+  - `app/controllers/ClassificacaoController.php` (`processarExcluir`): a ordem de validação foi invertida — agora a posse/existência do item é validada **antes** de verificar se ele é um item padrão do sistema (antes era o contrário). Não havia vazamento de dado sensível na ordem antiga (categorias padrão não pertencem a "outro usuário", são compartilhadas), mas a nova ordem segue a prática recomendada de sempre validar posse/existência como primeiro filtro de qualquer operação de escrita.
+- **Testes executados (Chrome embutido, com Apache/MySQL do XAMPP em execução, `http://localhost:8080/sistema_financeiro`):**
+  - `php -l` em todos os arquivos `.php` do projeto (exceto `assets/vendor/`) → nenhum erro de sintaxe.
+  - Cadastro, login e painel (estado vazio) de um usuário novo → funcionando.
+  - Acesso direto a `config/config.php` → HTTP 403 Forbidden.
+  - Rota inexistente → página de erro genérica, sem detalhe técnico.
+  - `GET /logout` (rota que só aceita POST) → tratada como rota inexistente, sem vazar detalhe técnico.
+  - Criação de categoria própria, criação de lançamento (despesa concluída) → refletidos corretamente no painel (saldo realizado/previsto, total de despesas, gráfico, lista de últimos lançamentos), sem erro no console do navegador.
+  - Tentativa de excluir uma categoria padrão do sistema (requisição forjada via `fetch`, contornando a interface que nem oferece essa opção) → bloqueada com a mensagem "Itens padrão do sistema não podem ser excluídos." (confirma que o reforço na ordem de validação não quebrou esse fluxo).
+  - Segundo usuário de teste tentando **editar** (`GET /lancamentos/editar?id=...`) e **excluir** (`POST /lancamentos/excluir`, requisição forjada) um lançamento do primeiro usuário → ambos bloqueados com a mensagem genérica "Não foi possível localizar o lançamento informado.", e a lista de categorias do segundo usuário não mostra a categoria própria do primeiro (isolamento também nas categorias).
+  - Envio de `/lancamentos/excluir` com token CSRF inválido (requisição forjada) → bloqueado com HTTP 400, sem texto técnico na resposta.
+  - Consulta direta ao banco (`logs_seguranca`) após os testes acima → confirmados os registros `acesso_negado` (edição negada, exclusão negada, CSRF inválido) com o `usuario_id` correto do segundo usuário.
+  - Consulta direta ao banco (`logs_erros`) após todos os testes → nenhum erro técnico inesperado registrado.
+
+**Resultado dos testes:** todos passaram. Dados de teste (usuários `teste.fasefinal@example.com` e `teste.fasefinal.b@example.com`, categoria, lançamento e respectivos registros em `logs_seguranca`) foram removidos do banco ao final da validação.
+
+**Conferência final contra a Seção 26 do FSD (Critérios de Aceitação):** todos os itens da lista foram revisados e confirmados atendidos — funcionalidades principais completas, arquitetura MVC respeitada, isolamento de dados validado no backend, validações da Seção 14 funcionando, indicadores do painel corretos, histórico por campo alterado, soft delete e campos de auditoria presentes, índices criados, logs de erro/segurança funcionando (incluindo contingência em arquivo), telas aderentes ao DESIGN.md, nenhuma funcionalidade fora de escopo, pastas internas protegidas, migrations não expostas e executadas apenas via CLI.
+
+**Pendência conhecida:** nenhuma quanto aos critérios de pronto desta fase. Como já registrado na Fase 3, este ambiente local não tem um servidor SMTP de teste instalado — o envio real do e-mail de recuperação de senha não foi reexercitado nesta fase (o fluxo de geração/validação de token já foi validado na Fase 3 e não foi alterado aqui).
 
 ## Fase 9 — Identidade visual (DESIGN.md) em todas as telas (detalhes)
 

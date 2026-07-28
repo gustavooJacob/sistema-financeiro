@@ -95,14 +95,14 @@ class ClassificacaoController
         $id = (int) ($_POST['id'] ?? 0);
         $item = $this->model->buscarPorId($id);
 
-        if ($item !== null && (int) $item['padrao'] === 1) {
-            Sessao::definirFlash('erro', 'Itens padrão do sistema não podem ser excluídos.');
+        if ($item === null || (int) $item['padrao'] !== 1 && (int) $item['usuario_id'] !== $usuarioId) {
+            LogSeguranca::registrar('acesso_negado', $usuarioId, null, "tentativa de excluir {$this->entidadeTipo} id={$id}");
+            Sessao::definirFlash('erro', 'Não foi possível localizar o item informado.');
             Sessao::redirecionar($this->rotaBase);
         }
 
-        if ($item === null || (int) $item['usuario_id'] !== $usuarioId) {
-            LogSeguranca::registrar('acesso_negado', $usuarioId, null, "tentativa de excluir {$this->entidadeTipo} id={$id}");
-            Sessao::definirFlash('erro', 'Não foi possível localizar o item informado.');
+        if ((int) $item['padrao'] === 1) {
+            Sessao::definirFlash('erro', 'Itens padrão do sistema não podem ser excluídos.');
             Sessao::redirecionar($this->rotaBase);
         }
 

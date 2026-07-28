@@ -122,7 +122,7 @@ $formatarMoeda = static fn (string $valor): string => 'R$ ' . number_format((flo
             const dadosGrafico = <?= json_encode(array_map(
                 static fn (array $item) => ['categoria' => $item['categoria'], 'total' => (float) $item['total']],
                 $resumo['grafico_categorias']
-            ), JSON_UNESCAPED_UNICODE) ?>;
+            ), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
             new Chart(document.getElementById('grafico-categorias'), {
                 type: 'doughnut',

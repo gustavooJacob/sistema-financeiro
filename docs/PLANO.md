@@ -210,15 +210,17 @@ Cada fase deve ser construída e validada isoladamente antes de avançar para a 
 
 ## Fase Final — Itens transversais e revisão de entrega
 
+**Status:** ✅ Concluída.
+
 **Objetivo:** consolidar logs, segurança e qualidade antes da entrega, conforme Seções 19, 24 e 26 do FSD.
 
 **Checklist:**
-- [ ] Log de erros funcionando (registro em `logs_erros` e estratégia de contingência em `logs/erros/*.log`).
-- [ ] Log de segurança funcionando para todos os eventos da Seção 19.
-- [ ] Revisão de segurança: nenhuma pasta interna acessível via navegador; nenhuma rota expõe dados de outro usuário; senhas/tokens sempre com hash; `config/config.php` não acessível publicamente.
-- [ ] Revisão de qualidade: validações, mensagens de erro, estados vazio/carregando/sucesso em todas as telas.
-- [ ] Conferência final contra os Critérios de Aceitação Técnica e Funcional (FSD, Seção 26).
-- [ ] Organização final do repositório para publicação em subpasta (XAMPP e, futuramente, Hostnet), sem depender de nomes fixos como `public_html`, `htdocs` ou `www`.
+- [x] Log de erros funcionando (registro em `logs_erros` e estratégia de contingência em `logs/erros/*.log`).
+- [x] Log de segurança funcionando para todos os eventos da Seção 19.
+- [x] Revisão de segurança: nenhuma pasta interna acessível via navegador; nenhuma rota expõe dados de outro usuário; senhas/tokens sempre com hash; `config/config.php` não acessível publicamente.
+- [x] Revisão de qualidade: validações, mensagens de erro, estados vazio/carregando/sucesso em todas as telas.
+- [x] Conferência final contra os Critérios de Aceitação Técnica e Funcional (FSD, Seção 26).
+- [x] Organização final do repositório para publicação em subpasta (XAMPP e, futuramente, Hostnet), sem depender de nomes fixos como `public_html`, `htdocs` ou `www`.
 
 **Critérios de pronto:**
 - Todos os itens da Seção 26 do FSD conferidos e marcados.
