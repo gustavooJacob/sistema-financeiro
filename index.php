@@ -32,6 +32,9 @@ require __DIR__ . '/app/models/TokenRecuperacaoSenha.php';
 require __DIR__ . '/app/controllers/AuthController.php';
 require __DIR__ . '/app/controllers/PainelController.php';
 require __DIR__ . '/app/controllers/ContaController.php';
+require __DIR__ . '/app/models/ItemClassificacao.php';
+require __DIR__ . '/app/services/Historico.php';
+require __DIR__ . '/app/controllers/ClassificacaoController.php';
 
 // Caminho base da aplicação (ex.: "/sistema_financeiro" no XAMPP, ou a
 // subpasta equivalente na hospedagem final), detectado a partir do próprio
@@ -70,6 +73,26 @@ try {
 $authController = new AuthController($pdo, $config);
 $painelController = new PainelController();
 $contaController = new ContaController($pdo, $config);
+$categoriaController = new ClassificacaoController(
+    $pdo,
+    'categorias',
+    'categoria',
+    '/categorias',
+    'categorias',
+    'Categorias — FinControle',
+    'categoria',
+    'categorias'
+);
+$formaPagamentoController = new ClassificacaoController(
+    $pdo,
+    'formas_pagamento',
+    'forma_pagamento',
+    '/formas-pagamento',
+    'formas_pagamento',
+    'Formas de Pagamento — FinControle',
+    'forma de pagamento',
+    'formas de pagamento'
+);
 
 $rotas = [
     'GET /' => static fn () => Sessao::estaAutenticado()
@@ -88,6 +111,12 @@ $rotas = [
     'GET /conta' => [$contaController, 'exibir'],
     'POST /conta/editar' => [$contaController, 'processarEditar'],
     'POST /conta/excluir' => [$contaController, 'processarExcluir'],
+    'GET /categorias' => [$categoriaController, 'listar'],
+    'POST /categorias/criar' => [$categoriaController, 'processarCriar'],
+    'POST /categorias/excluir' => [$categoriaController, 'processarExcluir'],
+    'GET /formas-pagamento' => [$formaPagamentoController, 'listar'],
+    'POST /formas-pagamento/criar' => [$formaPagamentoController, 'processarCriar'],
+    'POST /formas-pagamento/excluir' => [$formaPagamentoController, 'processarExcluir'],
 ];
 
 $chave = $metodo . ' ' . $rota;

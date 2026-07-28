@@ -191,3 +191,76 @@ body {
     background: var(--cor-fundo);
     color: var(--cor-texto-secundario);
 }
+
+.formulario-inline {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.formulario-inline .campo {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.formulario-inline .botao-primario {
+    width: auto;
+    padding: 0 16px;
+    white-space: nowrap;
+}
+
+.lista-classificacao {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.item-classificacao {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.item-classificacao:last-child {
+    border-bottom: none;
+}
+
+.item-nome {
+    flex: 1;
+    font-size: 13px;
+}
+
+.badge {
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.badge-neutro {
+    background: var(--cor-fundo);
+    color: var(--cor-texto-secundario);
+}
+
+.badge-info {
+    background: #EDEDFC;
+    color: var(--cor-marca);
+}
+
+.botao-perigo-pequeno {
+    height: 28px;
+    padding: 0 10px;
+    background: transparent;
+    color: var(--cor-erro);
+    border: 1px solid var(--cor-erro);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.botao-perigo-pequeno:hover {
+    background: var(--cor-erro-fundo);
+}

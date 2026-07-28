@@ -1,14 +1,14 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 4 concluída).
+**Última atualização:** 28/07/2026 (Fase 5 concluída).
 
 ## Estado atual
 
-Módulo de autenticação e sessão implementado e testado ponta a ponta: cadastro, login, logout, recuperação/redefinição de senha, bloqueio por tentativas e proteção de rotas por sessão. O sistema agora tem roteamento real (`index.php`) e a tela de Conta/Perfil permite ao usuário autenticado editar e-mail/senha e excluir a própria conta (soft delete). O painel financeiro (`/painel`) segue como placeholder — o painel completo é a Fase 7.
+Módulo de autenticação e sessão, conta do usuário e agora categorias/formas de pagamento estão implementados e testados ponta a ponta. O usuário autenticado já consegue visualizar as categorias e formas de pagamento padrão do sistema, criar as suas próprias e excluir (soft delete) apenas os itens que criou, com o histórico de exclusão sendo registrado corretamente. O painel financeiro (`/painel`) segue como placeholder — o painel completo é a Fase 7. Os lançamentos financeiros (Fase 6) ainda não existem, então as categorias/formas de pagamento criadas nesta fase ainda não podem ser usadas em nenhum lançamento real.
 
 ## Fase atual
 
-**Fase 4 — Conta do usuário (perfil): ✅ Concluída.**
+**Fase 5 — Categorias e Formas de Pagamento: ✅ Concluída.**
 
 ## Checklist por fase (ver detalhamento completo em `docs/PLANO.md`)
 
@@ -16,7 +16,7 @@ Módulo de autenticação e sessão implementado e testado ponta a ponta: cadast
 - [x] Fase 2 — Banco de dados e persistência
 - [x] Fase 3 — Autenticação, sessão e controle de acesso
 - [x] Fase 4 — Conta do usuário (perfil)
-- [ ] Fase 5 — Categorias e Formas de Pagamento
+- [x] Fase 5 — Categorias e Formas de Pagamento
 - [ ] Fase 6 — Lançamentos financeiros (CRUD)
 - [ ] Fase 7 — Painel financeiro (Dashboard)
 - [ ] Fase 8 — Histórico de alterações
@@ -25,7 +25,37 @@ Módulo de autenticação e sessão implementado e testado ponta a ponta: cadast
 
 ## Próximo passo recomendado
 
-Iniciar a **Fase 5 — Categorias e Formas de Pagamento**: models, controllers e views para listagem, criação e exclusão (soft delete) de categorias e formas de pagamento próprias, respeitando os itens padrão do sistema.
+Iniciar a **Fase 6 — Lançamentos financeiros (CRUD)**: model `Lancamento` com as validações da Seção 14 do FSD, listagem com filtros/paginação, formulário de criação/edição, atualização de status ("concluído") e exclusão (soft delete), com histórico gerado por campo alterado.
+
+## Fase 5 — Categorias e Formas de Pagamento (detalhes)
+
+**O que foi implementado:**
+
+- **`app/models/ItemClassificacao.php`**: model único e parametrizado pela tabela (`categorias` ou `formas_pagamento`), já que as duas entidades têm exatamente a mesma estrutura e regras (FSD, Seção 10/12). Métodos: `listarAtivos()` (itens padrão + próprios do usuário, ativos, padrão primeiro), `nomeDuplicado()` (checa duplicidade case-insensitive contra padrão e próprios), `criar()`, `buscarPorId()` e `excluirProprio()` (soft delete que só afeta linhas do próprio usuário, não padrão e ainda não excluídas — a posse é validada na própria consulta SQL, não apenas no Controller).
+- **`app/services/Historico.php`**: serviço genérico de gravação em `historico_alteracoes` (entidade, ação, campo alterado, valor anterior/novo), reutilizável nas próximas fases (lançamentos, Fase 6) além da exclusão de categorias/formas de pagamento usada aqui.
+- **`app/controllers/ClassificacaoController.php`**: controller único, também parametrizado (tabela, tipo de entidade, rota base, pasta de view, rótulos), instanciado duas vezes em `index.php` — uma para categorias, outra para formas de pagamento — evitando duplicar toda a lógica de listagem/criação/exclusão. Ações:
+  - `listar()` — rota protegida, lista itens padrão + próprios.
+  - `processarCriar()` — valida nome obrigatório, limite de 100 caracteres e duplicidade (contra padrão e próprios, case-insensitive); protegido por CSRF.
+  - `processarExcluir()` — bloqueia explicitamente a exclusão de itens padrão (mensagem própria), bloqueia e registra `acesso_negado` em `logs_seguranca` ao tentar excluir item de outro usuário ou inexistente; exclusão + registro de histórico (`exclusao`) executados dentro de uma transação PDO (DML, conforme já registrado em `docs/ERROS.md`); protegido por CSRF.
+- **Views**: `app/views/categorias/index.php` e `app/views/formas_pagamento/index.php` — arquivos finos que apontam para o template compartilhado `app/views/partials/lista_classificacao.php` (mesma estrutura de tela, conforme FSD Seção 12). Exibe formulário de criação, lista de itens com badge "Padrão do sistema" ou "Própria", botão de exclusão apenas nos itens próprios (com `confirm()` nativo do navegador) e mensagem informativa quando o usuário ainda não tem itens próprios.
+- **`assets/css/auth.css`**: classes novas `formulario-inline`, `lista-classificacao`, `item-classificacao`, `badge`/`badge-neutro`/`badge-info` e `botao-perigo-pequeno`, reaproveitando a paleta/tipografia já usada nas telas anteriores (aplicação definitiva do DESIGN.md em todas as telas continua sendo a Fase 9).
+- **`app/views/painel/index.php`** e o template de classificação: adicionados links de navegação entre Categorias, Formas de Pagamento, Conta e Painel (menu completo da Seção 16 do FSD é construído na Fase 9).
+- Rotas adicionadas em `index.php`: `GET /categorias`, `POST /categorias/criar`, `POST /categorias/excluir`, `GET /formas-pagamento`, `POST /formas-pagamento/criar`, `POST /formas-pagamento/excluir`.
+
+**Testes executados (via PowerShell/`Invoke-WebRequest`, com o Apache/MySQL do XAMPP em execução, usando `http://localhost:8080/sistema_financeiro`):**
+- `GET /categorias` e `GET /formas-pagamento` autenticado → exibem as 12 categorias e 6 formas de pagamento padrão corretamente.
+- Criar categoria própria "Pets" → aparece na lista com badge "Própria" e mensagem de sucesso.
+- Criar categoria com nome igual a um item padrão (case-insensitive, ex.: "salário" vs. "Salário") → bloqueada com mensagem de duplicidade.
+- Criar categoria com nome igual a um item próprio já existente (case-insensitive, ex.: "PETS" vs. "Pets") → bloqueada com mensagem de duplicidade.
+- Criar categoria com nome vazio → bloqueada com mensagem "Informe o nome da categoria."
+- Tentar excluir uma categoria padrão do sistema → bloqueada com a mensagem "Itens padrão do sistema não podem ser excluídos."; `excluido_em` permanece `NULL` no banco.
+- Excluir a categoria própria "Pets" → removida da listagem ativa, `excluido_em` preenchido no banco, registro `exclusao` gravado em `historico_alteracoes` (`valor_anterior = 'Pets'`), mensagem de sucesso exibida.
+- Usuário B tentando excluir uma categoria criada pelo usuário A → bloqueada com mensagem genérica ("Não foi possível localizar o item informado."), evento `acesso_negado` registrado em `logs_seguranca`, categoria do usuário A permanece ativa no banco.
+- Envio de `/categorias/criar` com token CSRF inválido → bloqueado com HTTP 400.
+
+**Resultado dos testes:** todos passaram. Dados de teste (usuários `teste.fase5@example.com` e `teste.fase5.outro@example.com`, categoria "Pets" e respectivos registros em `historico_alteracoes`/`logs_seguranca`) foram removidos do banco ao final da validação.
+
+**Pendência conhecida:** nenhuma. As telas de Categorias e Formas de Pagamento ainda usam o estilo básico já usado desde a Fase 3 (não o design system completo do `docs/DESIGN.md`) — tratado de forma consolidada na Fase 9. As categorias/formas de pagamento criadas nesta fase ainda não podem ser vinculadas a nenhum lançamento, pois o CRUD de lançamentos é a Fase 6.
 
 ## Fase 4 — Conta do usuário (perfil) (detalhes)
 
