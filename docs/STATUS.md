@@ -1,10 +1,16 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 9 concluída).
+**Última atualização:** 28/07/2026 (Fase 9 concluída + ajustes de UI solicitados pelo usuário).
 
 ## Estado atual
 
-Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e agora a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). Falta apenas a revisão transversal final de entrega (Fase Final).
+Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). Falta apenas a revisão transversal final de entrega (Fase Final).
+
+**Ajustes de UI feitos após a Fase 9, a pedido do usuário (commit "Ajustes de UI: sidebar retratil, conteudo centralizado e correcao do grafico"):**
+- Sidebar passou a ser retrátil: um botão "hambúrguer" no topo expande a sidebar de 56px para 220px, exibindo o rótulo de texto de cada item (além do ícone); o estado expandida/recolhida fica salvo em `localStorage` do navegador, já que cada navegação recarrega a página inteira (ver `app/views/partials/app_topo.php` e as classes `html.sidebar-expandida ...` em `assets/css/app.css`). Esta é uma extensão da sidebar 56px descrita no `docs/DESIGN.md` (Seção 8), que originalmente previa apenas ícones com tooltip — o comportamento retrátil foi um pedido explícito do usuário.
+- O card de conteúdo de cada tela (`.cartao`) passou a ficar centralizado horizontalmente na área de conteúdo (`margin: 0 auto`), em vez de alinhado à esquerda.
+- Corrigido um bug no gráfico de gastos por categoria do Painel (Chart.js): o `<canvas>` não tinha um contêiner de altura fixa, então o gráfico crescia descontroladamente ao alternar entre janela pequena e grande. Corrigido envolvendo o canvas em `<div class="grafico-container">` (altura fixa de 220px) e definindo `responsive: true`/`maintainAspectRatio: false` nas opções do Chart.js (`app/views/painel/index.php`).
+- Testes: verificado via `curl` (HTML/CSS servidos pelo Apache local) que a marcação do botão hambúrguer, dos rótulos de cada item e do `grafico-container` está presente e correta; dados de teste removidos do banco ao final.
 
 ## Fase atual
 
