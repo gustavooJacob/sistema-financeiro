@@ -1,0 +1,30 @@
+# Normaliza final de linha automaticamente para texto, preservando binários.
+* text=auto
+
+# Código e configuração da aplicação (PHP + scripts de banco).
+*.php text eol=lf
+*.sql text eol=lf
+
+# Front-end.
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+
+# Documentação e arquivos de configuração de texto.
+*.md text eol=lf
+*.txt text eol=lf
+.htaccess text eol=lf
+*.example.php text eol=lf
+
+# Imagens e fontes: sempre binário, sem normalização de linha.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

@@ -1,0 +1,17 @@
+# Configuração sensível — nunca versionar
+config/config.php
+
+# Logs de contingência
+logs/erros/*.log
+
+# Arquivos de ambiente comuns de editores/SO
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Dependências de front-end baixadas localmente (arquivos binários grandes,
+# reinstaladas via processo de setup — ver docs/PLANO.md Fase 1)
+# Mantenha esta linha comentada caso a equipe decida versionar o vendor/.
+# assets/vendor/**
