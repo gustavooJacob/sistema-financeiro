@@ -1,14 +1,14 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 5 concluída).
+**Última atualização:** 28/07/2026 (Fase 6 concluída).
 
 ## Estado atual
 
-Módulo de autenticação e sessão, conta do usuário e agora categorias/formas de pagamento estão implementados e testados ponta a ponta. O usuário autenticado já consegue visualizar as categorias e formas de pagamento padrão do sistema, criar as suas próprias e excluir (soft delete) apenas os itens que criou, com o histórico de exclusão sendo registrado corretamente. O painel financeiro (`/painel`) segue como placeholder — o painel completo é a Fase 7. Os lançamentos financeiros (Fase 6) ainda não existem, então as categorias/formas de pagamento criadas nesta fase ainda não podem ser usadas em nenhum lançamento real.
+Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento e agora o CRUD completo de lançamentos financeiros estão implementados e testados ponta a ponta. O usuário autenticado já consegue criar, editar, marcar como concluído e excluir (soft delete) seus próprios lançamentos, com listagem filtrada e paginada e histórico registrado por campo alterado. O painel financeiro (`/painel`) segue como placeholder — o painel completo (saldo, gráfico, listas) é a Fase 7, que agora tem lançamentos reais para calcular.
 
 ## Fase atual
 
-**Fase 5 — Categorias e Formas de Pagamento: ✅ Concluída.**
+**Fase 6 — Lançamentos financeiros (CRUD): ✅ Concluída.**
 
 ## Checklist por fase (ver detalhamento completo em `docs/PLANO.md`)
 
@@ -17,7 +17,7 @@ Módulo de autenticação e sessão, conta do usuário e agora categorias/formas
 - [x] Fase 3 — Autenticação, sessão e controle de acesso
 - [x] Fase 4 — Conta do usuário (perfil)
 - [x] Fase 5 — Categorias e Formas de Pagamento
-- [ ] Fase 6 — Lançamentos financeiros (CRUD)
+- [x] Fase 6 — Lançamentos financeiros (CRUD)
 - [ ] Fase 7 — Painel financeiro (Dashboard)
 - [ ] Fase 8 — Histórico de alterações
 - [ ] Fase 9 — Identidade visual (DESIGN.md) em todas as telas
@@ -25,7 +25,33 @@ Módulo de autenticação e sessão, conta do usuário e agora categorias/formas
 
 ## Próximo passo recomendado
 
-Iniciar a **Fase 6 — Lançamentos financeiros (CRUD)**: model `Lancamento` com as validações da Seção 14 do FSD, listagem com filtros/paginação, formulário de criação/edição, atualização de status ("concluído") e exclusão (soft delete), com histórico gerado por campo alterado.
+Iniciar a **Fase 7 — Painel financeiro (Dashboard)**: service de cálculo de saldo realizado/previsto e totais (Seção 14 do FSD), gráfico de gastos por categoria com Chart.js local, listas dos 5 lançamentos mais recentes e dos 5 próximos pendentes com destaque de atrasados, e estado vazio quando não há lançamentos no mês.
+
+## Fase 6 — Lançamentos financeiros (CRUD) (detalhes)
+
+**O que foi implementado:**
+
+- **`app/models/Lancamento.php`**: model da entidade Lançamento (FSD, Seção 10/11/14). Métodos: `criar()`; `buscarPorId()` (já validando posse por `usuario_id`, retorna `null` para lançamento inexistente/excluído/de outro usuário); `atualizar()` (compara cada campo editável entre o valor atual e o novo — usando `bccomp` para o campo `valor`, evitando falso positivo por diferença de formatação decimal — e retorna somente os campos que realmente mudaram, para o histórico por campo); `marcarConcluido()` (só afeta lançamento próprio e ainda pendente; retorna os dois campos alterados — `status` e `data_efetiva` — conforme FSD Seção 13); `excluir()` (soft delete restrito ao próprio usuário); `listar()` (filtros opcionais de período por `data_prevista`, categoria e forma de pagamento, paginação de 20/página, `JOIN` com `categorias`/`formas_pagamento` para exibir os nomes já resolvidos na listagem).
+- **`app/controllers/LancamentoController.php`**: `listar()` (lê filtros e página da query string, calcula total de páginas); `exibirCriar()`/`processarCriar()`; `exibirEditar()`/`processarEditar()` (ambos validam posse via `buscarComPermissao()`, que registra `acesso_negado` em `logs_seguranca` e redireciona com mensagem genérica quando o lançamento não existe ou pertence a outro usuário — mesmo padrão já usado em `ClassificacaoController`); `processarConcluir()` (exige `data_efetiva` válida antes de delegar ao model); `processarExcluir()`. Validações centralizadas em `validar()`, cobrindo exatamente a Seção 14 do FSD: valor numérico > 0, descrição ≤ 300 caracteres, tipo/status válidos, categoria/forma de pagamento obrigatórias e acessíveis ao usuário (própria ou padrão do sistema), data prevista válida, data efetiva obrigatória quando status = concluído. Geração de histórico: um registro `criacao` (sem campo específico, com uma descrição textual do lançamento em `valor_novo`); um registro `edicao` por campo alterado (na edição livre e também ao concluir, que gera dois registros — `status` e `data_efetiva` — conforme Seção 13); um registro `exclusao` (com a descrição do lançamento excluído em `valor_anterior`). Todas as ações protegidas por CSRF, seguindo o padrão dos Controllers anteriores.
+- **Views**: `app/views/lancamentos/index.php` (listagem com formulário de filtros por período/categoria/forma de pagamento, tabela com destaque visual de "Atrasado" para pendentes com data prevista no passado, ação inline de "Concluir" com campo de data efetiva, exclusão com `confirm()` nativo, paginação) e `app/views/lancamentos/formulario.php` (criação/edição, com o campo "Data efetiva" show/hide via JavaScript puro conforme o status selecionado).
+- **`assets/css/auth.css`**: classes novas para a tela de lançamentos (`cartao-tabela`, `formulario-filtros`, `tabela-lancamentos`, `badge-sucesso`/`badge-erro`, `botao-link`, `paginacao`, etc.), reaproveitando os tokens de cor/espaçamento/tipografia já usados nas telas anteriores (aplicação definitiva do DESIGN.md em todas as telas continua sendo a Fase 9).
+- Links de navegação para "Lançamentos" adicionados ao painel e ao template de categorias/formas de pagamento.
+- Rotas adicionadas em `index.php`: `GET /lancamentos`, `GET /lancamentos/novo`, `POST /lancamentos/criar`, `GET /lancamentos/editar`, `POST /lancamentos/editar`, `POST /lancamentos/concluir`, `POST /lancamentos/excluir`.
+
+**Testes executados (via `curl`, com o Apache/MySQL do XAMPP em execução, usando `http://localhost:8080/sistema_financeiro`):**
+- Criar lançamento válido (despesa, categoria/forma de pagamento padrão) → sucesso, aparece na listagem; registro `criacao` gravado em `historico_alteracoes`.
+- Criar com valor zero → bloqueado com "Informe um valor maior que zero."; criar com status "concluído" sem data efetiva → bloqueado com "Informe a data efetiva para um lançamento concluído."
+- Editar lançamento alterando `valor` e `categoria_id` na mesma ação → dois registros de histórico distintos gerados (um por campo, cada um com seu valor anterior/novo), não um registro genérico.
+- Marcar lançamento pendente como concluído → status e data efetiva atualizados; dois registros de histórico gerados (`status` e `data_efetiva`).
+- Excluir lançamento → `excluido_em` preenchido no banco, registro `exclusao` gravado em `historico_alteracoes`, item some da listagem ativa.
+- Usuário B tentando editar (GET) e excluir (POST) um lançamento do usuário A → ambos bloqueados com mensagem genérica ("Não foi possível localizar o lançamento informado."), evento `acesso_negado` registrado em `logs_seguranca`, lançamento do usuário A permanece ativo e inalterado no banco.
+- Envio de `/lancamentos/criar` e `/lancamentos/excluir` com token CSRF inválido → bloqueado com HTTP 400 e evento `acesso_negado` registrado.
+- Filtro por categoria sem lançamentos correspondentes e filtro por período que exclui todos os registros → estado vazio exibido corretamente ("Nenhum lançamento encontrado para os filtros aplicados.").
+- Lançamento pendente com data prevista no passado → exibido com badge "Atrasado" na listagem (regra de apresentação, sem alterar o status armazenado).
+
+**Resultado dos testes:** todos passaram (um ajuste foi necessário durante os testes — ver `docs/ERROS.md`, "Coluna usuario_id ambígua na listagem de lançamentos"). Dados de teste (usuários `teste.fase6@example.com` e `teste.fase6.b@example.com`, lançamentos e respectivos registros em `historico_alteracoes`/`logs_seguranca`) foram removidos do banco ao final da validação.
+
+**Pendência conhecida:** nenhuma quanto aos critérios de pronto da fase. A paginação (20 itens/página) foi implementada e revisada no código, mas não foi exercitada com mais de 20 registros reais neste ambiente de teste (validação feita com poucos lançamentos de teste); a lógica de contagem de páginas e navegação segue o mesmo padrão já testado em outras listagens do projeto. A tela ainda usa o estilo básico já usado desde a Fase 3 (não o design system completo do `docs/DESIGN.md`) — tratado de forma consolidada na Fase 9.
 
 ## Fase 5 — Categorias e Formas de Pagamento (detalhes)
 

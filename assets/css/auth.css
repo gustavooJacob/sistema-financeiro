@@ -264,3 +264,185 @@ body {
 .botao-perigo-pequeno:hover {
     background: var(--cor-erro-fundo);
 }
+
+/* Lançamentos (Fase 6). */
+
+.cartao-tabela {
+    max-width: 960px;
+}
+
+.campo select {
+    width: 100%;
+    height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--cor-texto-primario);
+    background: #FFFFFF;
+}
+
+.campo select:focus {
+    outline: none;
+    border-color: var(--cor-marca);
+    box-shadow: 0 0 0 3px rgba(91, 95, 239, 0.15);
+}
+
+.formulario-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.formulario-filtros .campo {
+    margin-bottom: 0;
+    min-width: 160px;
+}
+
+.botao-auto {
+    width: auto;
+    height: 36px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.botao-ghost {
+    background: transparent;
+    color: var(--cor-texto-secundario);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.botao-ghost:hover {
+    background: var(--cor-fundo);
+}
+
+.acoes-topo {
+    margin-bottom: 16px;
+}
+
+.badge-sucesso {
+    background: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso);
+}
+
+.badge-erro {
+    background: var(--cor-erro-fundo);
+    color: var(--cor-erro);
+}
+
+.tabela-lancamentos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.tabela-lancamentos th {
+    text-align: left;
+    color: var(--cor-texto-secundario);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--cor-borda);
+    padding: 8px 12px;
+}
+
+.tabela-lancamentos td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--cor-borda);
+    vertical-align: middle;
+}
+
+.tabela-lancamentos tbody tr:hover {
+    background: #FAFAFC;
+}
+
+.celula-acoes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.botao-link {
+    background: none;
+    border: none;
+    color: var(--cor-marca);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+}
+
+.botao-link:hover {
+    text-decoration: underline;
+}
+
+.botao-link-perigo {
+    color: var(--cor-erro);
+}
+
+.formulario-concluir {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.formulario-concluir input[type="date"] {
+    height: 28px;
+    padding: 4px 6px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.paginacao {
+    display: flex;
+    gap: 6px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.link-paginacao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    color: var(--cor-texto-secundario);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.link-paginacao:hover {
+    border-color: var(--cor-marca);
+}
+
+.link-paginacao-ativa {
+    background: var(--cor-marca);
+    border-color: var(--cor-marca);
+    color: #FFFFFF;
+}
+
+.acoes-formulario {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.acoes-formulario a.botao-auto {
+    line-height: 36px;
+}

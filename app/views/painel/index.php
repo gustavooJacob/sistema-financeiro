@@ -22,7 +22,8 @@ require __DIR__ . '/../partials/topo.php';
     </form>
 
     <div class="rodape-link">
-        <a href="<?= htmlspecialchars(Sessao::url('/categorias')) ?>">Categorias</a>
+        <a href="<?= htmlspecialchars(Sessao::url('/lancamentos')) ?>">Lançamentos</a>
+        · <a href="<?= htmlspecialchars(Sessao::url('/categorias')) ?>">Categorias</a>
         · <a href="<?= htmlspecialchars(Sessao::url('/formas-pagamento')) ?>">Formas de pagamento</a>
         · <a href="<?= htmlspecialchars(Sessao::url('/conta')) ?>">Minha conta</a>
     </div>

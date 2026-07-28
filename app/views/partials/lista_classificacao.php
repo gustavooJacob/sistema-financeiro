@@ -61,7 +61,8 @@ $itensProprios = array_filter($itens, static fn (array $item): bool => (int) $it
     </ul>
 
     <div class="rodape-link">
-        <a href="<?= htmlspecialchars(Sessao::url('/categorias')) ?>">Categorias</a>
+        <a href="<?= htmlspecialchars(Sessao::url('/lancamentos')) ?>">Lançamentos</a>
+        · <a href="<?= htmlspecialchars(Sessao::url('/categorias')) ?>">Categorias</a>
         · <a href="<?= htmlspecialchars(Sessao::url('/formas-pagamento')) ?>">Formas de pagamento</a>
         · <a href="<?= htmlspecialchars(Sessao::url('/painel')) ?>">Voltar ao painel</a>
     </div>

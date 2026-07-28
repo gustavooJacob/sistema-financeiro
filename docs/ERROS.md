@@ -27,6 +27,13 @@ Ao registrar um novo erro, use o modelo abaixo:
 - Solução aplicada: adicionada a chamada a `Usuario::resetarTentativasFalhas` logo após `Usuario::atualizarSenha` em `AuthController::processarRedefinirSenha` (`app/controllers/AuthController.php`). O FSD não trata esse caso explicitamente, mas foi considerado o comportamento correto: o token por e-mail já comprova a posse da conta, então manter o bloqueio ativo após uma redefinição legítima só prejudicaria o usuário sem ganho de segurança.
 - Como evitar no futuro: sempre que uma ação prova a posse da conta por um canal alternativo (e-mail, no caso), revisar se contadores de segurança relacionados (tentativas de login, bloqueio temporário) devem ser reiniciados como parte da mesma operação.
 
+## 28/07/2026 - Coluna "usuario_id" ambígua na listagem de lançamentos
+
+- Sintoma: `GET /lancamentos` retornava HTTP 500; o log técnico (`logs_erros`) registrava `PDOException: SQLSTATE[23000]... Column 'usuario_id' in where clause is ambiguous`.
+- Causa: `Lancamento::listar()` fazia `JOIN` com `categorias` e `formas_pagamento` (para exibir os nomes na listagem), mas as condições de filtro (`WHERE usuario_id = ...`) não qualificavam a tabela de origem — e as três tabelas (`lancamentos`, `categorias`, `formas_pagamento`) têm uma coluna `usuario_id`, tornando a referência ambígua para o MySQL.
+- Solução aplicada: todas as condições em `Lancamento::listar()` (`app/models/Lancamento.php`) passaram a qualificar explicitamente o alias da tabela (`l.usuario_id`, `l.data_prevista`, `l.categoria_id`, `l.forma_pagamento_id`, `l.excluido_em`).
+- Como evitar no futuro: sempre qualificar as colunas com o alias da tabela em qualquer consulta que envolva `JOIN`, mesmo quando o nome da coluna parecer óbvio no contexto — várias tabelas deste projeto compartilham nomes de coluna (`usuario_id`, `nome`, `excluido_em`).
+
 ## 28/07/2026 - Redirects e links quebravam ao acessar o projeto pela subpasta do XAMPP
 
 - Sintoma: ao acessar `http://localhost:8080/sistema_financeiro/`, o usuário era redirecionado para `http://localhost:8080/login` (sem o prefixo `sistema_financeiro`), resultando em "Not Found" do próprio Apache, fora da aplicação.
