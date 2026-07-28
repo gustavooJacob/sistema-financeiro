@@ -446,3 +446,146 @@ body {
 .acoes-formulario a.botao-auto {
     line-height: 36px;
 }
+
+/* Painel financeiro (Fase 7). */
+
+.cartao-painel {
+    max-width: 1100px;
+}
+
+.painel-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.painel-topo h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+}
+
+.painel-topo .secao-descricao {
+    margin: 0;
+}
+
+.painel-vazio {
+    text-align: center;
+    padding: 48px 24px;
+}
+
+.painel-vazio .botao-auto {
+    display: inline-flex;
+    margin-top: 8px;
+}
+
+.grade-indicadores {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.cartao-indicador {
+    background: var(--cor-cartao);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.indicador-rotulo {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--cor-texto-secundario);
+}
+
+.indicador-valor {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.indicador-positivo {
+    color: var(--cor-sucesso);
+}
+
+.indicador-negativo {
+    color: var(--cor-erro);
+}
+
+.grade-painel {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.cartao-secao {
+    background: var(--cor-cartao);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.lista-painel {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+}
+
+.item-painel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.item-painel:last-child {
+    border-bottom: none;
+}
+
+.item-painel-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.item-painel-categoria {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-painel-data {
+    font-size: 11px;
+    color: var(--cor-texto-secundario);
+    white-space: nowrap;
+}
+
+.item-painel-valor {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.formulario-logout-inline {
+    display: inline;
+}
+
+@media (max-width: 900px) {
+    .grade-indicadores {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grade-painel {
+        grid-template-columns: 1fr;
+    }
+}

@@ -30,6 +30,7 @@ require __DIR__ . '/app/services/EmailService.php';
 require __DIR__ . '/app/models/Usuario.php';
 require __DIR__ . '/app/models/TokenRecuperacaoSenha.php';
 require __DIR__ . '/app/controllers/AuthController.php';
+require __DIR__ . '/app/services/PainelFinanceiro.php';
 require __DIR__ . '/app/controllers/PainelController.php';
 require __DIR__ . '/app/controllers/ContaController.php';
 require __DIR__ . '/app/models/ItemClassificacao.php';
@@ -73,7 +74,7 @@ try {
 }
 
 $authController = new AuthController($pdo, $config);
-$painelController = new PainelController();
+$painelController = new PainelController($pdo);
 $contaController = new ContaController($pdo, $config);
 $categoriaController = new ClassificacaoController(
     $pdo,

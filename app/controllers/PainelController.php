@@ -1,17 +1,21 @@
 <?php
 /**
- * Controller do Painel Financeiro.
- *
- * Nesta fase (Fase 3 — Autenticação), existe apenas como rota protegida
- * de destino após o login, para validar a exigência de sessão ativa.
- * Os indicadores financeiros reais serão implementados na Fase 7
- * (ver docs/PLANO.md), conforme FSD Seção 12 (Módulo 4).
+ * Controller do Painel Financeiro (FSD, Seção 12, Módulo 4): tela inicial
+ * após login, com saldo realizado/previsto, totais do mês, gráfico de
+ * gastos por categoria e listas de lançamentos recentes/pendentes.
  */
 
 declare(strict_types=1);
 
 class PainelController
 {
+    private PDO $pdo;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
     public function index(): void
     {
         Sessao::exigirAutenticacao();
@@ -19,6 +23,9 @@ class PainelController
         $flash = Sessao::consumirFlash();
         $emailUsuario = Sessao::usuarioEmail();
         $csrfToken = Sessao::gerarTokenCsrf();
+
+        $servico = new PainelFinanceiro($this->pdo);
+        $resumo = $servico->obterResumoMensal((int) Sessao::usuarioId());
 
         require __DIR__ . '/../views/painel/index.php';
     }

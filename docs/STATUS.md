@@ -1,14 +1,14 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Fase 6 concluída).
+**Última atualização:** 28/07/2026 (Fase 7 concluída).
 
 ## Estado atual
 
-Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento e agora o CRUD completo de lançamentos financeiros estão implementados e testados ponta a ponta. O usuário autenticado já consegue criar, editar, marcar como concluído e excluir (soft delete) seus próprios lançamentos, com listagem filtrada e paginada e histórico registrado por campo alterado. O painel financeiro (`/painel`) segue como placeholder — o painel completo (saldo, gráfico, listas) é a Fase 7, que agora tem lançamentos reais para calcular.
+Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros e agora o Painel Financeiro (Dashboard) estão implementados e testados ponta a ponta. Ao logar, o usuário já vê o resumo do mês corrente (saldo realizado/previsto, totais de receitas/despesas, gráfico de gastos por categoria e listas de lançamentos recentes/pendentes). Falta apenas o Histórico de Alterações (Fase 8), a consolidação final da identidade visual (Fase 9) e a revisão transversal de entrega.
 
 ## Fase atual
 
-**Fase 6 — Lançamentos financeiros (CRUD): ✅ Concluída.**
+**Fase 7 — Painel financeiro (Dashboard): ✅ Concluída.**
 
 ## Checklist por fase (ver detalhamento completo em `docs/PLANO.md`)
 
@@ -18,14 +18,44 @@ Módulo de autenticação e sessão, conta do usuário, categorias/formas de pag
 - [x] Fase 4 — Conta do usuário (perfil)
 - [x] Fase 5 — Categorias e Formas de Pagamento
 - [x] Fase 6 — Lançamentos financeiros (CRUD)
-- [ ] Fase 7 — Painel financeiro (Dashboard)
+- [x] Fase 7 — Painel financeiro (Dashboard)
 - [ ] Fase 8 — Histórico de alterações
 - [ ] Fase 9 — Identidade visual (DESIGN.md) em todas as telas
 - [ ] Fase Final — Itens transversais e revisão de entrega
 
 ## Próximo passo recomendado
 
-Iniciar a **Fase 7 — Painel financeiro (Dashboard)**: service de cálculo de saldo realizado/previsto e totais (Seção 14 do FSD), gráfico de gastos por categoria com Chart.js local, listas dos 5 lançamentos mais recentes e dos 5 próximos pendentes com destaque de atrasados, e estado vazio quando não há lançamentos no mês.
+Iniciar a **Fase 8 — Histórico de alterações**: tela somente leitura com filtros por período, categoria e forma de pagamento, paginação de 20 registros/página, exibindo alterações mesmo de itens já excluídos (os registros em `historico_alteracoes` já são gerados desde as Fases 5 e 6).
+
+## Fase 7 — Painel financeiro (Dashboard) (detalhes)
+
+**O que foi implementado:**
+
+- **`app/services/PainelFinanceiro.php`**: serviço de cálculo dos indicadores do painel (FSD, Seção 14, "Cálculo dos Indicadores do Painel Financeiro"), método `obterResumoMensal()`. Busca separadamente os lançamentos concluídos do mês (por `data_efetiva`) e os pendentes do mês (por `data_prevista`) e combina os dois conjuntos em memória (com `bcadd`/`bcsub`/`bccomp` para evitar erro de arredondamento em valores monetários): saldo realizado (só concluídos), saldo previsto e totais de receitas/despesas (concluídos + pendentes, mesma composição), gráfico de gastos por categoria (só despesas, mesma composição, agrupado por `categoria_id` com nomes resolvidos em uma segunda consulta). Retorna também as duas listas do painel (5 últimos lançamentos por `criado_em` decrescente, 5 próximos pendentes por `data_prevista` crescente) e uma flag `vazio` para o estado vazio do mês.
+- **`app/controllers/PainelController.php`**: substituído o placeholder da Fase 3 por uma implementação real — passou a receber `PDO` no construtor, instancia `PainelFinanceiro` e passa o resumo calculado para a View.
+- **View `app/views/painel/index.php`**: cards de indicadores (saldo realizado/previsto, receitas/despesas do mês), gráfico de gastos por categoria (Chart.js, tipo doughnut) e duas listas (últimos lançamentos, próximos pendentes com destaque "Atrasado"), com atalho para "Novo lançamento" e estado vazio quando não há nenhum lançamento no mês corrente.
+- **Chart.js** baixado (`chart.umd.min.js`, v4.5.1) e hospedado em `assets/vendor/chartjs/` — carregado apenas quando há dados no gráfico, sem uso de CDN em tempo de execução.
+- **`assets/css/auth.css`**: classes novas para o painel (`cartao-painel`, `grade-indicadores`, `cartao-indicador`, `grade-painel`, `cartao-secao`, `lista-painel`, `item-painel`, etc.), reaproveitando a paleta/tipografia/espaçamento já usados nas telas anteriores (aplicação definitiva do DESIGN.md em todas as telas continua sendo a Fase 9).
+- `index.php`: `PainelController` passou a receber `$pdo`; `app/services/PainelFinanceiro.php` incluído no carregamento manual de classes.
+
+**Decisão de implementação (ambiguidade do FSD):** a Seção 12 diz que o painel "sempre reflete o mês corrente" e o fluxo da Seção 13 lista "últimos lançamentos e próximos pendentes ... do mês corrente" — por isso as duas listas do painel (diferente da tela de Lançamentos, que não tem esse recorte) foram restritas ao mês corrente: "últimos lançamentos" filtra por `criado_em` dentro do mês; "próximos pendentes" filtra por `data_prevista` dentro do mês. Um lançamento pendente com vencimento no mês seguinte não aparece no painel (mas continua visível normalmente na tela de Lançamentos e entra no cálculo do mês em que sua `data_prevista` cair).
+
+**Testes executados (via `curl` e navegador embutido, com Apache/MySQL do XAMPP em execução, usando `http://localhost:8080/sistema_financeiro`):**
+- Usuário recém-cadastrado sem nenhum lançamento → painel exibe o estado vazio ("Nenhum lançamento registrado em Julho/2026 ainda.") com atalho para criar o primeiro lançamento.
+- Criados 5 lançamentos no mês corrente (2 receitas — uma concluída R$ 5.000,00, uma pendente R$ 800,00 — e 3 despesas — duas concluídas R$ 300,00/R$ 1.200,00, uma pendente R$ 150,00 com `data_prevista` no passado) e 1 despesa pendente com `data_prevista` no mês seguinte (R$ 400,00, para validar exclusão do cálculo do mês):
+  - Saldo realizado: R$ 3.500,00 (5.000 − 300 − 1.200) → correto.
+  - Saldo previsto: R$ 4.150,00 (5.800 − 1.650) → correto.
+  - Total de receitas do mês: R$ 5.800,00 (5.000 + 800) → correto.
+  - Total de despesas do mês: R$ 1.650,00 (300 + 1.200 + 150, excluindo a de R$ 400,00 do mês seguinte) → correto.
+  - Gráfico de gastos por categoria: Moradia R$ 1.200,00, Alimentação R$ 450,00 (300 + 150) — sem a despesa do mês seguinte → correto.
+  - Lista "Próximos pendentes": exibiu apenas os 2 pendentes com `data_prevista` no mês corrente, com o vencido corretamente destacado como "Atrasado"; o pendente do mês seguinte não apareceu → correto.
+  - Lista "Últimos lançamentos": exibiu os 5 lançamentos mais recentes por `criado_em` (incluindo a despesa do mês seguinte, criada no mês corrente) → correto pela regra adotada.
+- Verificação no navegador (Chrome embutido): sem erros no console; requisição de rede confirmou `assets/vendor/chartjs/chart.umd.min.js` carregado do próprio domínio (HTTP 200), não de CDN; `typeof Chart !== 'undefined'` e canvas do gráfico presentes no DOM.
+- Pastas internas após a fase: `config/config.php` e `app/models/Conexao.php` → HTTP 403 diretamente pelo navegador (proteção mantida); `assets/vendor/chartjs/chart.umd.min.js` → HTTP 200 (acessível como asset público, como esperado).
+
+**Resultado dos testes:** todos passaram. Dados de teste (usuário `teste.fase7@example.com`, lançamentos e registros relacionados em `historico_alteracoes`/`logs_seguranca`) foram removidos do banco ao final da validação.
+
+**Pendência conhecida:** nenhuma quanto aos critérios de pronto da fase. A tela do painel ainda usa o estilo básico das fases anteriores (não o design system completo do `docs/DESIGN.md`, com sidebar de ícones e demais componentes) — tratado de forma consolidada na Fase 9.
 
 ## Fase 6 — Lançamentos financeiros (CRUD) (detalhes)
 
