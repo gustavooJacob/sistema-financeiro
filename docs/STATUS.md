@@ -1,10 +1,36 @@
 # STATUS.md — Estado Atual do Projeto FinControle
 
-**Última atualização:** 28/07/2026 (Documentação final de manutenção criada).
+**Última atualização:** 06/08/2026 (Deploy em produção no InfinityFree).
 
 ## Estado atual
 
-O FinControle está com todas as fases do `docs/PLANO.md` concluídas, incluindo a Fase Final de revisão transversal de segurança e qualidade. Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). A revisão de segurança (Seção 24 do FSD) e a conferência contra os Critérios de Aceitação (Seção 26 do FSD) foram concluídas sem pendências bloqueantes.
+O FinControle está com todas as fases do `docs/PLANO.md` concluídas, incluindo a Fase Final de revisão transversal de segurança e qualidade, e está **publicado em produção** no InfinityFree (`https://gustavo.freehosting.dev`). Módulo de autenticação e sessão, conta do usuário, categorias/formas de pagamento, CRUD completo de lançamentos financeiros, Painel Financeiro (Dashboard), Histórico de Alterações e a identidade visual completa (`docs/DESIGN.md`) estão implementados e testados ponta a ponta. Todas as telas internas usam a sidebar de navegação por ícones, cards, badges, tabelas e formulários do design system, com Bootstrap, fonte Inter e ícones Lucide hospedados localmente (sem CDN). A revisão de segurança (Seção 24 do FSD) e a conferência contra os Critérios de Aceitação (Seção 26 do FSD) foram concluídas sem pendências bloqueantes.
+
+## Deploy em produção — InfinityFree (06/08/2026)
+
+O sistema foi publicado em produção no **InfinityFree** (`https://gustavo.freehosting.dev`), em vez da Hostnet originalmente prevista no `CLAUDE.md`/`docs/MANUTENCAO.md` — hospedagem alternativa gratuita escolhida pelo usuário. `CLAUDE.md` e `docs/MANUTENCAO.md` ainda citam "Hostnet" como referência de ambiente de produção; manter em mente que o ambiente real atual é o InfinityFree até que esses documentos sejam atualizados.
+
+**Particularidade do ambiente (diferente do fluxo documentado para Hostnet):** o plano gratuito do InfinityFree não oferece acesso SSH/CLI, apenas FTP e phpMyAdmin. Como as migrations só podem ser executadas via `php database/migrations/run.php` em linha de comando (nunca por rota HTTP pública — regra de segurança preservada), o schema foi aplicado da seguinte forma:
+- Banco local (`fincontrole`, já com as 10 migrations aplicadas via CLI) exportado pelo phpMyAdmin do XAMPP — estrutura completa das 9 tabelas de negócio + tabela `migrations`, com dados apenas das categorias/formas de pagamento padrão (`usuario_id IS NULL AND padrao = 1`) e das 10 linhas de controle de `migrations`. Todos os dados de teste (usuários, lançamentos, histórico, logs) foram removidos antes da exportação.
+- `.sql` resultante importado diretamente no banco já criado no painel do InfinityFree.
+- **Consequência para o futuro:** qualquer nova migration precisará ser aplicada manualmente via phpMyAdmin no InfinityFree (não há CLI disponível lá), a menos que a hospedagem mude para uma com acesso SSH. Ao criar uma migration nova, gerar o SQL equivalente e aplicá-lo manualmente lá, além de registrar a linha correspondente na tabela `migrations` do servidor.
+
+**Upload dos arquivos:** feito via FTP (FileZilla), para dentro da pasta `htdocs` do servidor (raiz do site). O File Manager web do InfinityFree não conseguiu criar/editar arquivos começados por ponto (`.htaccess`) — abordagem abandonada em favor do FTP, que não teve esse problema. Arquivos enviados: todo o conteúdo do projeto exceto `.git/`, `docs/` (não protegida por `.htaccess`, evitando expor documentação interna publicamente) e `CLAUDE.md` (removido do servidor após verificação, pelo mesmo motivo — descreve regras internas de segurança). Confirmado que os 5 `.htaccess` (raiz, `config/`, `app/`, `database/`, `logs/`) subiram corretamente.
+
+**`config/config.php` de produção:** criado com os dados reais de conexão do MySQL do InfinityFree e `url_base` = `https://gustavo.freehosting.dev`.
+
+**SMTP de produção:** configurado com o Brevo (plano gratuito, 300 e-mails/dia) — `smtp-relay.brevo.com:587`, TLS, remetente `gugalokeplays@gmail.com` validado no painel do Brevo. Na primeira chamada, o Brevo bloqueou o envio pedindo verificação do IP de saída do InfinityFree (comportamento normal de segurança do Brevo para IP nunca usado antes, não é bloqueio do InfinityFree); autorizado o IP pelo e-mail de verificação do Brevo, e o envio passou a funcionar normalmente.
+
+**Testes realizados em produção:**
+- `https://gustavo.freehosting.dev/` → carrega a tela de login corretamente.
+- `https://gustavo.freehosting.dev/config/config.php` → HTTP 403 Forbidden (pasta protegida).
+- Cadastro, login, criação de lançamento/categoria e painel financeiro → funcionando.
+- Recuperação de senha (fluxo completo, incluindo recebimento do e-mail via Brevo e redefinição) → testada e funcionando.
+
+**Pendências desta etapa:**
+- Teste de isolamento entre dois usuários diferentes em produção ainda não foi reexecutado (já validado exaustivamente em ambiente local na Fase Final — ver detalhes mais abaixo nesta página).
+- Remoção final dos dados de teste do banco de produção (usuário de teste usado para validar o fluxo) ainda pendente de confirmação.
+- `CLAUDE.md` e `docs/MANUTENCAO.md` ainda não foram atualizados para refletir o InfinityFree como ambiente de produção real (em vez de Hostnet) nem o processo manual de migrations via phpMyAdmin — ajuste de documentação recomendado numa próxima sessão.
 
 ## Documentação final de manutenção (28/07/2026)
 
