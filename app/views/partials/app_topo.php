@@ -29,6 +29,7 @@ $itensMenu = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($tituloPagina ?? 'FinControle') ?></title>
+    <link rel="icon" type="image/svg+xml" href="<?= htmlspecialchars(Sessao::url('/assets/favicon.svg')) ?>">
     <link rel="stylesheet" href="<?= htmlspecialchars(Sessao::url('/assets/vendor/bootstrap/css/bootstrap.min.css')) ?>">
     <link rel="stylesheet" href="<?= htmlspecialchars(Sessao::url('/assets/css/app.css')) ?>">
     <script>
